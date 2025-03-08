@@ -1,150 +1,149 @@
-# Compilador Antachawy
+# Antachawi Compiler
 
-Este proyecto tiene como objetivo desarrollar un compilador para un nuevo lenguaje de programación denominado Antachawy, el cual utiliza el quechua como base para sus sintaxis y términos. Este esfuerzo busca reducir la brecha digital que existe actualmente en Perú, promoviendo el uso de tecnologías y lenguajes de programación accesibles para las comunidades quechuahablantes.
-Este lenguaje utiliza el Quechua Collao como base.
+This project aims to develop a compiler for a new programming language called Antachawi, which uses Quechua as the basis for its syntax and terms. This effort seeks to reduce the digital divide currently present in Peru by promoting the use of accessible programming languages and technologies for Quechua-speaking communities. This language is based on Quechua Collao.
 
-## Requisitos Previos
+## Prerequisites
 
-- Python 3.8 o superior
-- pip (gestor de paquetes de Python)
+- Python 3.8 or higher
+- pip (Python package manager)
 - git
-- gcc (para la compilacion del codigo C generado)
+- pip (Python package manager)
 
-## Creación y Activación de un Entorno Virtual
+## Creating and Activating a Virtual Environment
 
-Primero se debe clonar el repositorio.
+First, clone the repository.
 
 ```bash
-git clone https://github.com/GiomarMC/Antachawy.git
+git clone https://github.com/GiomarMC/Antachawi.git
 ```
 
-Luego ubicarse en la carpeta donde se encuentra el proyecto y continuar con la creacion del entorno virtual.
+Then navigate to the project folder and proceed with creating the virtual environment.
 
-### En Windows
+### On Windows
 
-1. Abre una terminal (cmd, PowerShell, o Git Bash).
-2. Navega al directorio del proyecto.
-3. Crea un entorno virtual con el siguiente comando:
+1. Open a terminal (cmd, PowerShell, or Git Bash).
+2. Navigate to the project directory.
+3. Create a virtual environment with the following command:
 
     ```bash
     python -m venv .venv
     ```
 
-4. Activa el entorno virtual:
+4. Activate the virtual environment:
 
     ```bash
     .\.venv\Scripts\activate
     ```
 
-### En Linux/MacOS
+### On Linux/MacOS
 
-1. Abre una terminal.
-2. Navega al directorio del proyecto.
-3. Crea un entorno virtual con el siguiente comando:
+1. Open a terminal.
+2. Navigate to the project directory.
+3. Create a virtual environment with the following command:
 
     ```bash
     python3 -m venv .venv
     ```
 
-4. Activa el entorno virtual:
+4. Activate the virtual environment:
 
     ```bash
     . .venv/bin/activate
     ```
 
-## Instalación de Compilador y sus requerimientos
+## Installing the Compiler and Its Requirements
 
-Una vez que el entorno virtual esté activado, instala el paquete de Python, ejecuta el siguiente comando.
+Once the virtual environment is activated, install the Python package by running the following command.
 
-1. Asegúrate de estar en el directorio del proyecto y que el entorno virtual esté activado.
-2. Ejecuta el siguiente comando:
+1. Make sure you are in the project directory and that the virtual environment is activated.
+2. Run the following command:
 
-### En Linux/MacOS
+### On Linux/MacOS
 
 ```bash
 pip install setuptools
 python3 setup.py install
 ```
 
-## En Windows
+## On Windows
 
 ```bash
 pip install setuptools
 python setup.py install
 ```
 
-Esto instalará todas las dependencias necesarias para el proyecto.
+This will install all the necessary dependencies for the project.
 
-## Ejecución del Compilador
+## Running the Compiler
 
-Con el entorno virtual activado y el paquete de python instalado, puedes ejecutar el compilador con el siguiente comando:
+With the virtual environment activated and the Python package installed, you can run the compiler using the following command:
 
 ```bash
-antachawy archivo.awy
+antachawi archivo.awy
 ```
 
-Reemplaza el archivo.awy con el nombre del archivo fuente que deseas compilar.    
-Por defecto el compilador generara un archivo ejecutable llamado `run` o `run.exe` si utilizas un Sistema Operativo Linux o Windows respectivamente.
-Para ejecutar el ejecutable deberas hacerlo de la siguiente manera.
+Replace archivo.awy with the name of the source file you want to compile.
+By default, the compiler will generate an executable file called `run` or `run.exe` if you are using a Linux or Windows operating system, respectively.
+To run the executable, do the following:
 
-### En Windows
+### On Windows
 
 ```bash
 .\run.exe
 ```
 
-### En Linux
+### On Linux
 
 ```bash
 ./run
 ```
 
-## Opciones adicionales
+## Additional Options
 
-El compilador de Antachawy cuenta con un CLI, los comandos que utiliza se utilizando el siguiente comando.
-
-```bash
-antachawy -h
-```
-
-Apareceran las siguientes opciones.
+The Antachawi compiler includes a CLI, and the available commands can be accessed using the following command:
 
 ```bash
--o, --output: Especifica el nombre del archivo de salida (ejecutable generado).
--d, --debug: Genera archivos de depuración en la carpeta outputs.
--v, --version: Muestra la versión del compilador.
+antachawi -h
 ```
 
-## Sobre el Lenguaje
+The following options will appear:
 
-### Operaciones Basicas
+```bash
+-o, --output: Specifies the name of the output file (generated executable).
+-d, --debug: Generates debugging files in the `outputs` folder.  
+-v, --version: Displays the compiler version.
+```
 
-El lenguaje Antachawy soporta las siguientes operaciones basicas:
+## About the Language
 
-- Suma: + (ejemplo: c = a + b).
-- Resta: - (ejemplo: c = a - b).
-- Multiplicación: * (ejemplo: c = a * b).
-- División: / (ejemplo: c = a / b).
+### Basic Operations
 
-### Palabras Reservadas
+The Antachawi language supports the following basic operations:
 
-A continuacion se presenta una lista de las palabras reservadas en el lenguaje Antachawy y su funcionalidad.
+- Addition: + (example: c = a + b).
+- Subtraction: - (example: c = a - b).
+- Multiplication: * (example: c = a * b).
+- Division: / (example: c = a / b).
 
-| Palabra Reservada | Funcionalidad                          |
+### Reserved Words
+
+Below is a list of the reserved words in the Antachawi language and their functionality.
+
+| Reserver word     | Functionality                          |
 |-------------------|----------------------------------------|
-| `qhapaq`          | Define el inicio de un programa        |
-| `siqiy`           | Función para imprimir                  |
-| `bool`            | Tipo de dato booleano                  |
-| `yanqa`           | Booleano falso                         |
-| `chiqaq`          | Booleano verdadero                     |
-| `yupay`           | Tipo de dato entero                    |
-| `chunkayuq`       | Tipo de dato flotante                  |
-| `sananpa`         | Tipo de dato carácter                  |
-| `qaytu`           | Tipo de dato cadena                    |
+| `qhapaq`          | Defines the start of a programa        |
+| `rikuchiy`        | Print function                         |
+| `bool`            | Boolean data type                      |
+| `yanqa`           | Boolean false                          |
+| `chiqaq`          | Boolean true                           |
+| `yupay`           | Integer data type                      |
+| `chunkayuq`       | Float data type                        |
+| `sananpa`         | Character data type                    |
+| `qaytu`           | String data type                       |
 
-### Ejemplo
+### Example
 
-A continuacion se mostrara un ejemplo de codigo fuente utilizando el lenguaje Antachawy.
+Below is an example of source code using the Antachawi language.
 
 ```bash
 qhapaq () 
@@ -159,19 +158,19 @@ qhapaq ()
 }
 ```
 
-Suponiendo que el archivo se llama main.awy, un ejemplo de compilacion seria el siguiente.
+Assuming the file is named main.awi, an example compilation would be as follows:
 
 ```bash
-antachawy main.awy -o main
+antachawi main.awi -o main
 ```
 
-Se generara un archivo ejecutable el cual podras ejecutar siguiendo los pasos anteriores.
+An executable file will be generated, which you can run following the previous steps.
 
-Si se realiza un debug mostrara algunos archivos con contenidos como el AST generado por el compilador en una carpeta llamada outputs:
-A continuacion un ejemplo
+If debugging is enabled, some files containing contents like the AST generated by the compiler will be stored in a folder named outputs:
+Here is an example:
 
 ```bash
-antachawu main.awy -o main -d
+antachawi main.awi -o main -d
 Programa
 └── Definicion
     ├── qhapaq
@@ -226,10 +225,10 @@ Programa
     └── }
 ```
 
-Tambien se podra apreciar la imagen del AST
+You can also view the AST image:
 
 ![Descripción de la imagen](images/AbstractSyntaxTree.png)
 
-## Contribuciones
+## Contributions
 
-¡Las contribuciones son bienvenidas! Siéntete libre de abrir issues o pull requests para mejorar el proyecto.
+Contributions are welcome! Feel free to open issues or pull requests to improve the project.
