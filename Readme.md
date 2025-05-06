@@ -7,7 +7,6 @@ This project aims to develop a compiler for a new programming language called An
 - Python 3.8 or higher
 - pip (Python package manager)
 - git
-- pip (Python package manager)
 
 ## Creating and Activating a Virtual Environment
 
@@ -56,20 +55,22 @@ Then navigate to the project folder and proceed with creating the virtual enviro
 Once the virtual environment is activated, install the Python package by running the following command.
 
 1. Make sure you are in the project directory and that the virtual environment is activated.
-2. Run the following command:
+2. Install the build tools:
 
 ### On Linux/MacOS
 
 ```bash
-pip install setuptools
-python3 setup.py install
+pip install build hatchling
+python -m build
+pip install .
 ```
 
-## On Windows
+### On Windows
 
 ```bash
-pip install setuptools
-python setup.py install
+pip install build hatchling
+python -m build
+pip install .
 ```
 
 This will install all the necessary dependencies for the project.
