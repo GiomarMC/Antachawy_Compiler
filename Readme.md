@@ -52,25 +52,34 @@ Then navigate to the project folder and proceed with creating the virtual enviro
 
 ## Installing the Compiler and Its Requirements
 
-Once the virtual environment is activated, install the Python package by running the following command.
-
-1. Make sure you are in the project directory and that the virtual environment is activated.
-2. Install the build tools:
-
-### On Linux/MacOS
-
-```bash
-pip install build hatchling
-python -m build
-pip install .
-```
+Once the virtual environment is activated, install the package using one of the following commands:
 
 ### On Windows
-
 ```bash
+# Install build tools
 pip install build hatchling
+
+# Build the package
 python -m build
-pip install .
+
+# Install the package using the generated files
+pip install dist\antachawi-0.0.1-py3-none-any.whl
+# Or alternatively:
+# pip install dist\antachawi-0.0.1.tar.gz
+```
+
+### On Linux/MacOS
+```bash
+# Install build tools
+pip install build hatchling
+
+# Build the package
+python3 -m build
+
+# Install the package using the generated files
+pip install dist/antachawi-0.0.1-py3-none-any.whl
+# Or alternatively:
+# pip install dist/antachawi-0.0.1.tar.gz
 ```
 
 This will install all the necessary dependencies for the project.
@@ -206,22 +215,22 @@ Programa
     │       │   │   ├── ExpresionImpresion
     │       │   │   │   ├── Expresion
     │       │   │   │   │   ├── ExpresionMultiplicativa
-    │       │   │   │   │   │   ├── Termino
-    │       │   │   │   │   │   │   └── ID
-    │       │   │   │   │   │   │       └── x
-    │       │   │   │   │   │   └── ExpresionMultiplicativaPrime
-    │       │   │   │   │   └── ExpresionAditivaPrime
-    │       │   │   │   │       ├── OperadorAditivo
-    │       │   │   │   │       │   └── +
-    │       │   │   │   │       ├── ExpresionMultiplicativa
-    │       │   │   │   │       │   ├── Termino
-    │       │   │   │   │       │   │   └── ENTERO
-    │       │   │   │   │       │   │       └── 10
-    │       │   │   │   │       │   └── ExpresionMultiplicativaPrime
-    │       │   │   │   │       └── ExpresionAditivaPrime
-    │       │   │   │   └── ExpresionImpresionPrime
-    │       │   │   └── )
-    │       │   └── \n
+    │   │   │   │   │   │   │   ├── Termino
+    │   │   │   │   │   │   │   │   └── ID
+    │   │   │   │   │   │   │   │       └── x
+    │   │   │   │   │   │   │   └── ExpresionMultiplicativaPrime
+    │   │   │   │   │   │   └── ExpresionAditivaPrime
+    │   │   │   │   │       ├── OperadorAditivo
+    │   │   │   │   │       │   └── +
+    │   │   │   │   │       ├── ExpresionMultiplicativa
+    │   │   │   │   │       │   ├── Termino
+    │   │   │   │   │       │   │   └── ENTERO
+    │   │   │   │   │       │   │       └── 10
+    │   │   │   │   │       │   └── ExpresionMultiplicativaPrime
+    │   │   │   │   │       └── ExpresionAditivaPrime
+    │   │   │   │   └── ExpresionImpresionPrime
+    │   │   │   └── )
+    │   │   └── \n
     │       └── ListaSentencias
     └── }
 ```
