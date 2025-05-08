@@ -1,5 +1,6 @@
 import os
 
+
 class IntermediateCodeOptimizer:
     def __init__(self, intermediate_code, combine_prints=False):
         self.intermediate_code = intermediate_code
