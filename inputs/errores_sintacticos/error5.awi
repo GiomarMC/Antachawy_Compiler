@@ -1,4 +1,5 @@
-qhapaq() {
+qhapaq()
+{
     yupay x
     x = 5 +
     rikuchiy( x )
