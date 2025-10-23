@@ -1,5 +1,6 @@
 import os
 
+
 class IntermediateCodeOptimizer:
     def __init__(self, intermediate_code, combine_prints=False):
         self.intermediate_code = intermediate_code
@@ -21,6 +22,9 @@ class IntermediateCodeOptimizer:
         print_index = 0
         for instruction in self.intermediate_code:
             parts = instruction.split()
+            if parts[0] == "IF" or parts[0] == "GOTO" or parts[0].endswith(":"):
+                new_code.append(instruction)
+                continue
             if len(parts) == 3:
                 dest, _, src = parts
                 if src.isdigit() or (src.startswith("'") and src.endswith("'")):
@@ -67,6 +71,14 @@ class IntermediateCodeOptimizer:
                 else:
                     self.optimized_code.insert(0, instruction)
                 used_vars.add(var_to_print)
+
+            elif parts[0] == "IF":  # Instrucción condicional
+                condition_var = parts[2]
+                self.optimized_code.insert(0, instruction)
+                used_vars.add(condition_var)  # Las variables de condición se consideran "vivas"
+
+            elif parts[0] == "GOTO" or parts[0].endswith(":"):  # Saltos y etiquetas
+                self.optimized_code.insert(0, instruction)
 
     def simplify_expressions(self):
         for i, instruction in enumerate(self.optimized_code):
