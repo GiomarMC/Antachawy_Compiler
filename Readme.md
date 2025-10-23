@@ -82,6 +82,20 @@ pip install dist/antachawi-0.0.1-py3-none-any.whl
 # pip install dist/antachawi-0.0.1.tar.gz
 ```
 
+### Development mode (recommended for contributors)
+
+```bash
+# Install in editable mode
+# If you have defined development dependencies (e.g., pytest, flake8) in pyproject.toml:
+pip install -e .[dev]
+
+# Otherwise, just run:
+pip install -e .
+
+# Editable mode allows you to modify the source code and test changes
+# instantly without rebuilding the package.
+```
+
 This will install all the necessary dependencies for the project.
 
 ## Running the Compiler
@@ -89,7 +103,7 @@ This will install all the necessary dependencies for the project.
 With the virtual environment activated and the Python package installed, you can run the compiler using the following command:
 
 ```bash
-antachawi archivo.awy
+antachawi archivo.awi
 ```
 
 Replace archivo.awy with the name of the source file you want to compile.
