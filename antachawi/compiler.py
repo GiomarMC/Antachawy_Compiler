@@ -1,21 +1,23 @@
-from antachawy.scanner import Scanner
-from antachawy.parser import RecursiveDescentParser
-from antachawy.consolehandler import ConsoleHandler
-from antachawy.semantic import SemanticAnalyzer
-from antachawy.intermediate import IntermediateCodeGenerator
-from antachawy.optimizer import IntermediateCodeOptimizer
-from antachawy.traductor_c import CodeTranslator
+from antachawi.scanner import Scanner
+from antachawi.parser import RecursiveDescentParser
+from antachawi.consolehandler import ConsoleHandler
+from antachawi.semantic import SemanticAnalyzer
+from antachawi.intermediate import IntermediateCodeGenerator
+from antachawi.optimizer import IntermediateCodeOptimizer
+from antachawi.traductor_c import CodeTranslator
+from antachawi.sourcecode import SourceCode
+from antachawi.antachawy_translator import AntachawyToCppTranslator
 import subprocess
 import os
-import time
 import platform
 
 class Compiler:
     def __init__(self, source_code: str, output_file: str, debug: bool = False):
         self.source_code = source_code
+        self.code = SourceCode(source_code)
         self.output_file = output_file if output_file else self.default_output_file()
         self.debug = debug
-        self.scanner = Scanner()
+        self.scanner = Scanner(self.code)
         self.parser = None
         self.console_handler = ConsoleHandler()
 
@@ -37,11 +39,8 @@ class Compiler:
         
         if not self.perform_semantic_analysis(tree):
             return False
-
-        code = self.generate_intermediate_code(tree)
-        codigo = self.optimize_intermediate_code(code)
-        self.translate_to_c(codigo)
-        self.compile_c_code("programa.c", self.output_file)
+        self.translate_antachawy_to_c()
+        self.compile_c_code("programa.cpp", self.output_file)
         return True
 
     def perform_lexical_analysis(self):
@@ -52,33 +51,29 @@ class Compiler:
             self.console_handler.show_errors(lex_errors)
             return None
         print("--> Lexical Analysis Passed")
-        time.sleep(1)
         if self.debug:
             self.scanner.save_tokens()
         return tokens
 
     def perform_syntax_analysis(self):
-        self.parser = RecursiveDescentParser(self.scanner)
+        self.parser = RecursiveDescentParser(self.scanner, self.code)
         tree = self.parser.parse()
         parse_errors = self.parser.errors
         if parse_errors:
             self.console_handler.show_errors(parse_errors)
             return None
         print("--> Syntax Analysis Passed")
-        time.sleep(1)
         if self.debug:
             self.parser.save_syntax_outputs(tree, "outputs/sintactic/AbstractSyntaxTree")
         return tree
 
     def perform_semantic_analysis(self, tree):
-        analyzer = SemanticAnalyzer()
+        analyzer = SemanticAnalyzer(self.code)
         analyzer.analyze(tree)
         if analyzer.errors:
-            for error in analyzer.errors:
-                print(error)
+            self.console_handler.show_errors(analyzer.errors)
             return False
         print("--> Semantic Analysis Passed")
-        time.sleep(1)
         if self.debug:
             analyzer.save_symbol_table()
             analyzer.save_print_table()
@@ -88,7 +83,6 @@ class Compiler:
         generator = IntermediateCodeGenerator()
         code = generator.analyze(tree)
         print("--> Generated Intermediate Code")
-        time.sleep(1)
         if self.debug:
             generator.save_intermediate_code()
             generator.save_symbol_table()
@@ -98,7 +92,6 @@ class Compiler:
         optimizer = IntermediateCodeOptimizer(code)
         codigo = optimizer.optimize()
         print("--> Optimized Intermediate Code")
-        time.sleep(1)
         if self.debug:
             optimizer.save_optimized_code()
         return codigo
@@ -108,15 +101,20 @@ class Compiler:
         translator.translate_to_c()
         translator.save_to_file("programa.c")
         print("--> Translated to C")
-        time.sleep(1)
+        return True
+    
+    def translate_antachawy_to_c(self):
+        translator = AntachawyToCppTranslator(self.code)
+        translated_code = translator.translate()
+        translator.save_translated_code("programa.cpp")
+        print("--> Translated to C++")
         return True
     
     def compile_c_code(self, source_file, output_file):
         try:
-            compile_command = ["gcc", source_file, "-o", output_file]
+            compile_command = ["g++", source_file, "-o", output_file]
             result = subprocess.run(compile_command, check=True, capture_output=True, text=True)
             print(f"--> Compilation successful. Executable created: {output_file}")
-            time.sleep(1)
             print(result.stdout)
             if not self.debug:
                 os.remove(source_file)
