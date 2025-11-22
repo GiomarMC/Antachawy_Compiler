@@ -60,6 +60,7 @@ class Compiler:
         tree = self.parser.parse()
         parse_errors = self.parser.errors
         if parse_errors:
+            print("--> Syntax Analysis Failed")
             self.console_handler.show_errors(parse_errors)
             return None
         print("--> Syntax Analysis Passed")
@@ -71,6 +72,7 @@ class Compiler:
         analyzer = SemanticAnalyzer(self.code)
         analyzer.analyze(tree)
         if analyzer.errors:
+            print("--> Semantic Analysis Failed")
             self.console_handler.show_errors(analyzer.errors)
             return False
         print("--> Semantic Analysis Passed")

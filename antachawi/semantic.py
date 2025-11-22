@@ -111,7 +111,7 @@ class SemanticAnalyzer:
         if left_value and right_value:
             if left_type != right_type:
                 self.errors.append({
-                    "mensaje": f"Error de tipo: operación entre tipos '{left_type}' y '{right_type}' no permitida.",
+                    "mensaje": f"mana atisqa ruwanakuy '{left_type}' hina '{right_type}'wan.",
                     "linea": left_line,
                     "contenido": self.get_current_line_content(left_line)})
 
@@ -127,12 +127,12 @@ class SemanticAnalyzer:
         tipo = self.symbol_table.get(nombre)
         if tipo is None:
             self.errors.append({
-                "mensaje": f"Error: Variable '{nombre}' no declarada.",
+                "mensaje": f"t’ukupa '{nombre}' mana willaykusqa.",
                 "linea": line,
                 "contenido": self.get_current_line_content(line)})
         if tipo != expresion_tipo:
             self.errors.append({
-                "mensaje": f"Error de tipo: Variable '{nombre}' es de tipo '{tipo}' y la expresión es de tipo '{expresion_tipo}'.",
+                "mensaje": f"t’ukupa '{nombre}'qa '{tipo}' ruwasqa, ichaqa kay rimanakuyqa '{expresion_tipo}' ruwasqa.",
                 "linea": line,
                 "contenido": self.get_current_line_content(line)})
         else:
@@ -147,7 +147,7 @@ class SemanticAnalyzer:
             if left_value and right_value:
                 if left_type != right_type:
                     self.errors.append({
-                        "mensaje": f"Error de tipo: operación entre tipos '{left_type}' y '{right_type}' no permitida.",
+                        "mensaje": f"mana atisqa ruwanakuy '{left_type}' hina '{right_type}'wan.",
                         "linea": line,
                         "contenido": self.get_current_line_content(line)})
                 valor = f"{left_value} {operator} {right_value}"
@@ -162,7 +162,7 @@ class SemanticAnalyzer:
             if left_value and right_value:
                 if left_type != right_type:
                     self.errors.append({
-                        "mensaje": f"Error de tipo: operación entre tipos '{left_type}' y '{right_type}' no permitida.",
+                        "mensaje": f"mana atisqa ruwanakuy '{left_type}' hina '{right_type}'wan.",
                         "linea": left_line,
                         "contenido": self.get_current_line_content(left_line)})
                 valor = f"{left_value} {operator} {right_value}"
@@ -178,7 +178,7 @@ class SemanticAnalyzer:
             if left_value and right_value:
                 if left_type != right_type:
                     self.errors.append({
-                        "mensaje": f"Error de tipo: operación entre tipos '{left_type}' y '{right_type}' no permitida.",
+                        "mensaje": f"mana atisqa ruwanakuy '{left_type}' hina '{right_type}'wan.",
                         "linea": line,
                         "contenido": self.get_current_line_content(line)})
                 valor = f"{left_value} {operator} {right_value}"
@@ -198,7 +198,7 @@ class SemanticAnalyzer:
             if left_value and right_value:
                 if left_type != right_type:
                     self.errors.append({
-                        "mensaje": f"Error de tipo: operación entre tipos '{left_type}' y '{right_type}' no permitida.",
+                        "mensaje": f"mana atisqa ruwanakuy '{left_type}' hina '{right_type}'wan.",
                         "linea": left_line,
                         "contenido": self.get_current_line_content(left_line)})
                 valor = f"{left_value} {operator} {right_value}"
@@ -215,7 +215,7 @@ class SemanticAnalyzer:
             var_line = child.children[0].children[0].name
             if var_type is None:
                 self.errors.append({
-                    "mensaje": f"Error: variable '{var_name}' no está definida.",
+                    "mensaje": f"variable '{var_name}' mana churakusqa.",
                     "linea": var_line,
                     "contenido": self.get_current_line_content(var_line)})
             return var_type, var_value, var_line

@@ -1,0 +1,6 @@
+qhapaq ()
+{
+    yupay a = 1
+    a = a + 3
+    rikuchiy ("New value of a is: ", a)
+}

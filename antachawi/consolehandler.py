@@ -32,9 +32,9 @@ class ConsoleHandler:
         
         error_message = Text()
         for error in errors:
-            error_message.append(f"Error en la linea {error['linea']}: ", style="bold red")
+            error_message.append(f"Pantachay {error['linea']} siq'isqapi: ", style="bold red")
             error_message.append(f"{error['mensaje']}\n", style="cyan")
             error_message.append(f"     {error['contenido']}\n", style="magenta")
 
-        error_panel = Panel(error_message, title="Errores de Compilacion", border_style="red")
+        error_panel = Panel(error_message, title="Pantachakuna ruwanakusqapi", border_style="red")
         self.console.print(error_panel)

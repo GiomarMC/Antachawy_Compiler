@@ -46,7 +46,7 @@ class RecursiveDescentParser:
 
         if self.current_token is not None:
             self.errors.append({
-                "mensaje": f"Error: '{self.current_token.lexema}'",
+                "mensaje": f"'{self.current_token.lexema}'",
                 "linea": self.current_token.linea,
                 "contenido": self.get_current_line_content(
                     self.current_token.linea
@@ -103,8 +103,8 @@ class RecursiveDescentParser:
                 else:
                     token = self.current_token.lexema
             mensaje = (
-                f"Error sintáctico: se encontró '{token}' "
-                f"cuando se esperaba '{lexema}'."
+                f"'{token}' tariqchasqa,"
+                f"ichaqa '{lexema}' suyaywasqa."
             )
             self.register_error(mensaje)
 
@@ -320,7 +320,7 @@ class RecursiveDescentParser:
                 if self.current_token.lexema == '\n'
                 else self.current_token.lexema
             )
-            mensaje = f"Error: '{lexema}' no es una expresión condicional"
+            mensaje = f"'{lexema}' mana expresion condicional kanchu."
             self.panic_mode(mensaje, EtiquetasAntachawy.SALTO_LINEA,
                             parent=node)
         return node
@@ -366,7 +366,7 @@ class RecursiveDescentParser:
                 if self.current_token.lexema == '\n'
                 else self.current_token.lexema
             )
-            mensaje = f"Error: '{lexema}' no es un operador relacional"
+            mensaje = f"'{lexema}' mana ruwarikuq relasional kanchu."
             self.panic_mode(mensaje, EtiquetasAntachawy.SALTO_LINEA,
                             parent=node)
         return node

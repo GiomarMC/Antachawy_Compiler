@@ -103,7 +103,7 @@ class Scanner:
         while True:
             if self.__get_next_char() is None:
                 self.errors.append({
-                    "mensaje": "Comentario de bloque no terminado",
+                    "mensaje": "k'utu qillqa mana tukusqa chay ñiqin líniapi.",
                     "linea": self.lineno,
                     "contenido": self.__get_current_line_content()
                 })
@@ -124,7 +124,7 @@ class Scanner:
 
         if self.current_char != '"':
             self.errors.append({
-                "mensaje": "Literal de cadena no terminada en la línea",
+                "mensaje": "qillqa ch’usaq simincha mana tukusqa chay ñiqin líniapi.",
                 "linea": self.lineno,
                 "contenido": self.__get_current_line_content()
             })
@@ -144,7 +144,7 @@ class Scanner:
 
         if len(character_content) > 1 and self.current_char != "\n":
             self.errors.append({
-                "mensaje": "Caracteres multiples en un literal de caracter",
+                "mensaje": "achkha uqalla qillqa ch’usaq uqallapi.",
                 "linea": self.lineno,
                 "contenido": self.__get_current_line_content()
             })
@@ -152,7 +152,7 @@ class Scanner:
         
         if self.current_char != "'":
             self.errors.append({
-                "mensaje": "Literal de caracter no terminado en la línea",
+                "mensaje": "qillqa ch’usaq uqalla mana tukusqa chay ñiqin líniapi.",
                 "linea": self.lineno,
                 "contenido": self.__get_current_line_content()
             })
@@ -175,7 +175,7 @@ class Scanner:
                 decimal_point_count += 1
                 if decimal_point_count > 1:
                     self.errors.append({
-                        "mensaje": "Número con más de un punto decimal",
+                        "mensaje": "t’aqraq yupay punchu hukman aswan tiyachisqa.",
                         "linea": self.lineno,
                         "contenido": self.__get_current_line_content()
                     })
@@ -188,7 +188,7 @@ class Scanner:
                 self.__get_next_char()
             
             self.errors.append({
-                "mensaje": "Numero seguido por caracteres no permitidos",
+                "mensaje": "yupay qatiq mana hayñisqa uqallawan.",
                 "linea": self.lineno,
                 "contenido": self.__get_current_line_content()
             })
@@ -232,7 +232,7 @@ class Scanner:
             return Token(lexema, lexema_a_etiqueta[lexema], self.lineno, startidx)
         else:
             self.errors.append({
-                "mensaje": "Caracter no reconocido",
+                "mensaje": "uqalla mana riqsisqa.",
                 "linea": self.lineno,
                 "contenido": self.__get_current_line_content()
             })
