@@ -1,0 +1,18 @@
+:: ari decide qué hacer: "si pasa esto, haz aquello".
+:: Prueba a cambiar el número de frutas y ejecuta otra vez.
+qhapaq()
+{
+    yupay frutas = 7
+    ari (frutas > 10)
+    {
+        rikuchiy("¡Tengo un banquete!")
+    }
+    mana_chayqa_ari (frutas > 0)
+    {
+        rikuchiy("Tengo ", frutas, " frutas para comer")
+    }
+    mana_chayqa
+    {
+        rikuchiy("No tengo frutas... ¡a buscar!")
+    }
+}

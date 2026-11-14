@@ -1,0 +1,10 @@
+:: imapaq repite un número fijo de veces.
+:: La tabla de multiplicar del 7.
+qhapaq()
+{
+    yupay numero = 7
+    imapaq (yupay i = 1; i <= 10; i = i + 1)
+    {
+        rikuchiy(numero, " x ", i, " = ", numero * i)
+    }
+}

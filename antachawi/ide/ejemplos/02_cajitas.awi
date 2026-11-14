@@ -1,0 +1,16 @@
+:: Las variables son cajitas que guardan un valor.
+:: Cada cajita tiene un tipo:
+::   yupay      números enteros (3, 10, -5)
+::   chunkayuq  números con decimales (0.32)
+::   qaytu      textos ("Tunki")
+::   sananpa    una sola letra ('T')
+qhapaq()
+{
+    qaytu nombre = "Tunki"
+    sananpa inicial = 'T'
+    yupay edad = 3
+    chunkayuq altura = 0.32
+    rikuchiy("Me llamo ", nombre, " y empiezo con ", inicial)
+    rikuchiy("Tengo ", edad, " años")
+    rikuchiy("Mido ", altura, " metros")
+}

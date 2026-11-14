@@ -1,0 +1,7 @@
+:: Mi primer programa: Tunki saluda.
+:: rikuchiy muestra un mensaje en la pantalla.
+qhapaq()
+{
+    rikuchiy("¡Hola! Soy Tunki")
+    rikuchiy("Vivo en los bosques nublados del Perú")
+}
