@@ -192,8 +192,7 @@ def test_cambiar_idioma(ventana):
         ventana.selector_idioma.findData(QU))
     assert texto_del_globo(ventana).count("mana churakusqa") == 1
     assert "no fue declarada" not in texto_del_globo(ventana)
-    # Lo que aún no está traducido se muestra en español
-    assert ventana.accion_ejecutar.text().endswith("Ejecutar")
+    assert ventana.accion_ejecutar.text() == mensajes.IDE_EJECUTAR.qu
 
 
 def test_mientras_se_escribe_tunki_piensa(ventana):
@@ -283,3 +282,14 @@ def test_barra_de_estado(ventana):
     ventana.editor.ir_a_linea(3, 5)
     assert ventana.posicion.text() == mensajes.IDE_POSICION.texto(
         linea=3, columna=5)
+
+
+def test_en_quechua_cambian_botones_ejemplos_y_plantilla(ventana):
+    ventana.selector_idioma.setCurrentIndex(
+        ventana.selector_idioma.findData(QU))
+    assert ventana.accion_ejecutar.text() == mensajes.IDE_EJECUTAR.qu
+    ejemplos = [a.text() for a in ventana.boton_ejemplos.menu().actions()]
+    assert len(ejemplos) == len(list(EJEMPLOS.glob("*.awi")))
+    assert all("qu" == r.parent.name for r in ejemplos_en(QU))
+    ventana.nuevo()
+    assert "Napaykullayki" in ventana.editor.toPlainText()

@@ -1,0 +1,16 @@
+:: Variablekunaqa huch'uy kahachakuna hina: huk chaninta waqaychanku.
+:: Sapa kahachaqa huk rikch'ayniyuq (tipo):
+::   yupay      tukuy yupaykuna (3, 10, -5)
+::   chunkayuq  chunkayuq yupaykuna (0.32)
+::   qaytu      qillqakuna ("Tunki")
+::   sananpa    huk sapalla qillqa ('T')
+qhapaq()
+{
+    qaytu suti = "Tunki"
+    sananpa qallariq = 'T'
+    yupay wata = 3
+    chunkayuq sayay = 0.32
+    rikuchiy("Sutiyqa ", suti, ", ", qallariq, " qillqawan qallarin")
+    rikuchiy(wata, " watayuq kani")
+    rikuchiy(sayay, " metro sayayniyuq kani")
+}

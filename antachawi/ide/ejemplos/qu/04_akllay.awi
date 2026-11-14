@@ -1,0 +1,18 @@
+:: ari ima ruwanata akllan: "kayqa kaptinqa, chayta ruway".
+:: Rurukunaq yupayninta t'ikray, hinaspa wakmanta purichiy.
+qhapaq()
+{
+    yupay rurukuna = 7
+    ari (rurukuna > 10)
+    {
+        rikuchiy("¡Hatun mikhuy kapuwan!")
+    }
+    mana_chayqa_ari (rurukuna > 0)
+    {
+        rikuchiy(rurukuna, " rurukuna mikhunaypaq kapuwan")
+    }
+    mana_chayqa
+    {
+        rikuchiy("Mana rurukuna kapuwanchu... ¡maskhaq risaq!")
+    }
+}

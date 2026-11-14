@@ -1,0 +1,12 @@
+:: chaykama kutin-kutin ruwan, condicion chiqaq kachkaptinqa.
+:: Tunki phurunkunata hukmanta hukman yupan.
+qhapaq()
+{
+    yupay phuru = 1
+    chaykama (phuru <= 5)
+    {
+        rikuchiy(phuru, " ñiqin phuru")
+        phuru = phuru + 1
+    }
+    rikuchiy("¡Tukurqanña! Llapanta yuparqani.")
+}
