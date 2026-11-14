@@ -160,16 +160,57 @@ pip install -e ".[ide]"        # installs PySide6
 antachawi-ide                  # or: python -m antachawi.ide [file.awi]
 ```
 
-* The program is checked while you type; errors are underlined and listed.
+* The program is checked while you type: errors are underlined in red,
+  warnings in yellow, and each line with a problem gets a dot next to its
+  number. The **Problemas** panel lists them; click one to jump to it.
 * Click Tunki to go to the next error.
 * **Ejecutar** (F5) runs the program with the built-in interpreter, so gcc
   is not needed. Runtime errors (division by zero, endless loops) are
   reported on the line where they happen.
 * **Ejemplos** has short programs for beginners, including one with
   errors on purpose.
+* The editor indents automatically after `{` and lines up `}`; Tab inserts
+  4 spaces and Backspace removes a whole indentation level.
+* The status bar shows whether the program has errors, the cursor
+  position, the language selector and the **A−/A+** buttons to change the
+  font size (also Ctrl −/Ctrl +, or Ctrl + mouse wheel).
 
-The drawing of Tunki is a text grid in `antachawi/ide/sprite.py`; it can be
-edited letter by letter.
+### Languages
+
+The language selector (bottom right) has three options:
+
+| Option              | What changes                                              |
+|---------------------|-----------------------------------------------------------|
+| Español             | Everything in Spanish.                                    |
+| Quechua             | Buttons, panels, Tunki, error messages and examples in Quechua Collao. |
+| Español + Quechua   | Interface in Spanish; Tunki shows each error in both languages (default). |
+
+Anything without a translation is shown in Spanish. The Quechua examples
+live in `antachawi/ide/ejemplos/qu/` and replace the Spanish ones with the
+same number when Quechua is selected.
+
+> **Note:** most of the Quechua texts and all the Quechua examples are a
+> *draft* that has not yet been reviewed by a Quechua Collao speaker
+> (column `origen` = `borrador` in `antachawi/traducciones/quechua.csv`).
+> See [Error messages](#error-messages) for how to review them.
+
+### Look and code
+
+The environment always uses its own light theme (Fusion style and a full
+palette), so it stays readable even when the desktop uses a dark theme.
+
+| File                         | Contents                                       |
+|------------------------------|------------------------------------------------|
+| `antachawi/ide/ventana.py`   | Main window, toolbar, panels, status bar       |
+| `antachawi/ide/editor.py`    | Code editor: line numbers, marks, indentation, zoom |
+| `antachawi/ide/resaltador.py`| Syntax colors                                  |
+| `antachawi/ide/tunki.py`     | Tunki's movement and speech bubble             |
+| `antachawi/ide/sprite.py`    | Tunki's drawing (pixel art)                    |
+| `antachawi/ide/iconos.py`    | Toolbar icons (pixel art)                      |
+| `antachawi/ide/tema.py`      | All colors and the style sheet                 |
+
+The drawings of Tunki and of the icons are text grids (one letter per
+color); they can be edited letter by letter.
 
 ## Using the compiler from Python
 
@@ -677,10 +718,17 @@ The end-to-end tests (`tests/test_compilador.py`) compile and run every
 program twice, with and without optimization, and check the output. The
 differential tests (`tests/test_diferencial.py`) generate random programs,
 compile and run them, and compare their output with an interpreter of the
-three-address code (`tests/interprete.py`). Both need an x86-64 machine
-with `gcc`, `cc` or `clang`, and are skipped otherwise. If `clang` is
-installed, the assembly for macOS and Windows is also checked from any
-platform.
+three-address code (`antachawi/interprete.py`, the same one the
+graphical environment uses). Both need an x86-64 machine with `gcc`, `cc`
+or `clang`, and are skipped otherwise. If `clang` is installed, the
+assembly for macOS and Windows is also checked from any platform.
+
+The tests of the graphical environment (`tests/test_ide.py`) run without a
+screen (Qt `offscreen`) and are skipped if PySide6 is not installed; to
+include them use `pip install -e ".[dev,ide]"`. `tests/test_traduccion.py`
+checks that the Quechua sheet has every message and no broken
+translations (if it fails after adding a message, run
+`python -m antachawi.traduccion actualizar`).
 
 ## Code style
 
