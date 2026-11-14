@@ -24,13 +24,13 @@ qhapaq()
 
     imapaq (yupay i = 0; i < 5; i = i + 1)  :: for (int i = 0; i < 5; i++)
     {  
-        rikuchiy("i es " + i)      :: print("i es " + i)
+        rikuchiy("i es ", i)      :: print("i es " + i)
     }
 
     yupay contador = 0
     chaykama (contador < 3)     :: while (contador < 3)
     {  
-        rikuchiy("Contador es " + contador)    :: print("Contador es " + contador)
+        rikuchiy("Contador es ", contador)    :: print("Contador es " + contador)
         contador = contador + 1
     }
 }

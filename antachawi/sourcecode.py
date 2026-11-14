@@ -1,28 +1,44 @@
 # Autor: Giomar Muñoz
 # Fecha: 2023-09-26
 # Descripción: Clase que representa un archivo de código fuente
+from typing import Optional
+
+
+def normalizar_texto(texto: str) -> str:
+    """Saltos de línea de Windows (\\r\\n) o de Mac antiguo (\\r) -> \\n,
+    igual que al leer un archivo en modo texto."""
+    return texto.replace("\r\n", "\n").replace("\r", "\n")
+
 
 class SourceCode:
-    def __init__(self, filename: str):
-        self.filename = filename
-        self.lines = {}         # Diccionario que almacena las líneas de código
-        self.__load_file()
+    """
+    Código fuente de un programa. Se crea desde un archivo,
+    SourceCode("programa.awi"), o desde un texto que no está en disco
+    (por ejemplo, lo que hay en el editor de un IDE):
+    SourceCode.desde_texto("qhapaq() {...}").
+    """
 
-    def __load_file(self):
-        #Carga el archivo de código fuente en un diccionario
-        with open(self.filename, "r", encoding='utf-8') as file:
-            for lineno, line in enumerate(file, start=1):
-                self.lines[lineno] = line.strip()
+    def __init__(self, filename: str, texto: Optional[str] = None):
+        self.filename = filename
+        if texto is None:
+            with open(filename, "r", encoding='utf-8') as file:
+                texto = file.read()
+        self.texto = normalizar_texto(texto)
+        # Se conserva la indentación para poder señalar la columna exacta
+        # de un error.
+        lineas = self.texto.split("\n")
+        if lineas and lineas[-1] == "":
+            lineas.pop()        # el salto de línea final no abre una línea
+        self.lines = dict(enumerate(lineas, start=1))
+
+    @classmethod
+    def desde_texto(cls, texto: str, nombre: str = "<texto>"):
+        return cls(nombre, texto)
 
     def get_line(self, lineno: int) -> str:
-        #Devuelve la línea de código en la posición indicada
+        # Devuelve la línea de código en la posición indicada
         return self.lines.get(lineno, None)
-    
+
     def get_all_lines(self) -> dict:
-        #Devuelve todo el contenido del archivo en un diccionario
+        # Devuelve todo el contenido del archivo en un diccionario
         return self.lines
-    
-    def print_all_lines(self):
-        #Imprime todas las líneas de código
-        for lineno, line in self.lines.items():
-            print(f"{lineno}: {line}")

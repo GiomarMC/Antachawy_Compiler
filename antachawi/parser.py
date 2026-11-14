@@ -1,22 +1,29 @@
-from antachawi.definitions import (
-    LexemasAntachawy,
-    EtiquetasAntachawy,
-    primeros
-)
-from antachawi.scanner import Scanner
-from antachawi.sourcecode import SourceCode
-from anytree import Node, RenderTree
-from anytree.exporter import UniqueDotExporter
 import os
 
+from anytree import Node, RenderTree
+from anytree.exporter import UniqueDotExporter
+
+from antachawi import mensajes
+from antachawi.definitions import EtiquetasAntachawy, etiqueta_a_lexema
+from antachawi.errores import nuevo_error
+from antachawi.grammar import PRIMEROS, SIGUIENTES
+from antachawi.scanner import Scanner
+from antachawi.sourcecode import SourceCode
+from antachawi.token import Token
+
+E = EtiquetasAntachawy
 SALTO_DE_LINEA = 'salto de línea'
+
+# Puntos de sincronización del modo pánico: fin de sentencia, fin de bloque
+# y fin de archivo.
+_SINCRONIZACION = {E.SALTO_LINEA, E.LLAVE_DER, E.FIN_ARCHIVO}
 
 
 def render_tree(root: object, filename: str):
     tree_str = ""
-    for pre, fill, node in RenderTree(root):
-        tree_str += "%s%s\n" % (pre, node.name)
-    with open(filename, "w") as file:
+    for pre, _, node in RenderTree(root):
+        tree_str += f"{pre}{node.name}\n"
+    with open(filename, "w", encoding="utf-8") as file:
         file.write(tree_str)
 
 
@@ -26,6 +33,18 @@ def export_tree(root: object, filename: str):
 
 
 class RecursiveDescentParser:
+    """
+    Parser descendente recursivo para la gramática de antachawi/grammar.py.
+    Hay un método por cada no terminal; cuando un no terminal tiene varias
+    producciones, se elige mirando el token actual contra PRIMEROS (y
+    SIGUIENTES para las producciones ε).
+
+    Cada token consumido se guarda como hoja con el lexema y, debajo, un
+    nodo con el número de línea (que también guarda la columna en el
+    atributo `columna`). La hoja guarda el token completo en `token`, que es
+    lo que usa el constructor del AST (antachawi/constructor_ast.py).
+    """
+
     def __init__(self, scanner: Scanner, source_code: SourceCode):
         self.scanner = scanner
         self.tokens = []
@@ -34,498 +53,407 @@ class RecursiveDescentParser:
         self.root = None
         self.errors = []
         self.source_code = source_code
+        # Mientras está activo no se registran errores nuevos: evita la
+        # cascada de errores que provoca un solo token inesperado.
+        self.en_panico = False
 
+    # ------------------------------------------------------------------
+    # Utilidades
+    # ------------------------------------------------------------------
     def get_current_line_content(self, line):
         return self.source_code.get_line(line)
 
+    @property
+    def etiqueta(self):
+        return self.current_token.etiqueta
+
     def parse(self):
-        self.tokens = self.scanner.tokens
+        self.tokens = list(self.scanner.tokens)
+        if self.tokens:
+            ultimo = self.tokens[-1]
+            fin = Token("$", E.FIN_ARCHIVO, ultimo.linea, -1,
+                        ultimo.columna_final)
+        else:
+            fin = Token("$", E.FIN_ARCHIVO, 1, -1, 1)
+        self.tokens.append(fin)
         self.current_token_idx = 0
-        self.current_token = self.tokens[self.current_token_idx]
+        self.current_token = self.tokens[0]
+        self.errors = []
+        self.en_panico = False
+
         self.root = self.programa()
 
-        if self.current_token is not None:
-            self.errors.append({
-                "mensaje": f"'{self.current_token.lexema}'",
-                "linea": self.current_token.linea,
-                "contenido": self.get_current_line_content(
-                    self.current_token.linea
-                )
-            })
-
+        # Si sobra código después de la '}' final, el error se reporta en
+        # ese código y no en el salto de línea que lo separa.
+        if self.etiqueta == E.SALTO_LINEA:
+            self.next_token()
+        if self.etiqueta != E.FIN_ARCHIVO:
+            self.error_esperado([E.FIN_ARCHIVO], self.root)
         return self.root
 
     def next_token(self):
-        self.current_token_idx += 1
-        if self.current_token_idx < len(self.tokens):
-            self.current_token = self.tokens[self.current_token_idx]
+        if self.current_token_idx < len(self.tokens) - 1:
+            self.current_token_idx += 1
+        self.current_token = self.tokens[self.current_token_idx]
+
+    @staticmethod
+    def describir(etiqueta, lexema=None):
+        if etiqueta in (E.SALTO_LINEA, E.FIN_ARCHIVO) or lexema is None:
+            return etiqueta_a_lexema.get(etiqueta, etiqueta)
+        return lexema
+
+    def consume(self, expected_tag, parent: Node):
+        """
+        Consume el token actual si tiene la etiqueta esperada y lo agrega
+        como hoja de `parent`. Si no coincide, registra el error y entra en
+        modo pánico. Devuelve True si consumió el token.
+        """
+        if self.etiqueta != expected_tag:
+            self.error_esperado([expected_tag], parent)
+            return False
+
+        token = self.current_token
+        if token.etiqueta == E.SALTO_LINEA:
+            nombre = SALTO_DE_LINEA
+        elif token.etiqueta in (E.CARACTER, E.CADENA):
+            nombre = token.lexema[1:-1]
         else:
-            self.current_token = None
+            nombre = token.lexema
+        hoja = Node(nombre, parent=parent, token=token)
+        Node(token.linea, parent=hoja, columna=token.columna)
+        self.en_panico = False
+        self.next_token()
+        return True
 
-    def consume(self, expected_tag, lexema, parent: Node):
-        """
-        Consume el token actual si coincide con el esperado.
-        Si no coincide, registra un error y entra en modo pánico
-        hasta sincronizar.
-        """
-        if (
-            self.current_token is not None
-            and self.current_token.etiqueta == expected_tag
-        ):
-            display_lexema = (
-                "salto de línea"
-                if (
-                    self.current_token.etiqueta
-                    == EtiquetasAntachawy.SALTO_LINEA
-                )
-                else self.current_token.lexema
-            )
-
-            if self.current_token.etiqueta in [EtiquetasAntachawy.CARACTER,
-                                               EtiquetasAntachawy.CADENA]:
-                token_node = Node(self.current_token.lexema[1:-1],
-                                  parent=parent)
-            else:
-                token_node = Node(display_lexema, parent=parent)
-
-            Node(self.current_token.linea, parent=token_node)
-            self.next_token()
-
-        else:
-            if self.current_token is None:
-                token = "final del archivo"
-            else:
-                if (
-                    self.current_token.etiqueta
-                    == EtiquetasAntachawy.SALTO_LINEA
-                ):
-                    token = "salto de línea"
-                else:
-                    token = self.current_token.lexema
-            mensaje = (
-                f"'{token}' tariqchasqa,"
-                f"ichaqa '{lexema}' suyaywasqa."
-            )
-            self.register_error(mensaje)
-
-            self.panic_mode(
-                sync_tags=[
-                    EtiquetasAntachawy.SALTO_LINEA,
-                    EtiquetasAntachawy.LLAVE_DER
-                ],
-                parent=parent
-            )
-
-    def panic_mode(self, mensaje=None, sync_tags=None, parent=None):
-        """
-        Modo pánico: descarta tokens hasta
-        encontrar un punto de sincronización.
-        Permite continuar el análisis en la siguiente estructura válida.
-        """
+    def error_esperado(self, etiquetas_esperadas, parent: Node):
+        """Registra 'se encontró X, se esperaba Y' y sincroniza."""
         Node('ERROR', parent=parent)
-        if mensaje:
-            self.register_error(mensaje)
+        if not self.en_panico:
+            encontrado = self.describir(self.etiqueta,
+                                        self.current_token.lexema)
+            esperado = ", ".join(sorted(
+                f"'{self.describir(e)}'" for e in etiquetas_esperadas))
+            self.register_error(mensajes.TOKEN_INESPERADO,
+                                encontrado=encontrado, esperado=esperado)
+        self.en_panico = True
+        self.panic_mode()
 
-        if not self.current_token:
-            return
-
-        sync_tags = sync_tags or [
-            EtiquetasAntachawy.SALTO_LINEA,
-            EtiquetasAntachawy.LLAVE_DER,
-            EtiquetasAntachawy.LLAVE_IZQ
-        ]
-
-        while (self.current_token is not None and
-               self.current_token.etiqueta not in sync_tags):
+    def panic_mode(self):
+        """
+        Modo pánico: descarta tokens hasta un punto de sincronización
+        (salto de línea, '}' o fin de archivo) sin consumirlo.
+        """
+        while self.etiqueta not in _SINCRONIZACION:
             self.next_token()
 
-    def register_error(self, mensaje):
-        if self.current_token is not None:
-            linea = self.current_token.linea
-            contenido = self.get_current_line_content(linea)
-        else:
-            linea = self.tokens[-1].linea if self.tokens else 0
-            contenido = "fin del archivo"
+    def posicion_error(self):
+        """
+        Devuelve (línea, columna, longitud) que se señala en un error:
 
-        mensaje = mensaje.replace('\n', 'salto de línea')
+        * Si el token actual está en la misma línea que el anterior, el
+          error es ese token y se subraya completo.
+        * Si el token actual es un salto de línea, el fin del archivo o ya
+          está en otra línea, lo que pasó es que *faltó* algo al final de
+          la línea anterior: se señala justo después del último token
+          válido. Ej.: en "ari (a > 1" + "{" en la línea siguiente, el
+          error está en la línea del ari, no en la de la llave.
+        """
+        actual = self.current_token
+        anterior = (self.tokens[self.current_token_idx - 1]
+                    if self.current_token_idx > 0 else None)
+        falta_al_final = (
+            anterior is not None
+            and anterior.etiqueta != E.SALTO_LINEA
+            and (actual.etiqueta in (E.SALTO_LINEA, E.FIN_ARCHIVO)
+                 or actual.linea != anterior.linea)
+        )
+        if falta_al_final:
+            return anterior.linea, anterior.columna_final, 1
+        return actual.linea, actual.columna, len(actual.lexema)
 
-        self.errors.append({
-            "mensaje": mensaje,
-            "linea": linea,
-            "contenido": contenido
-        })
+    def register_error(self, mensaje, **parametros):
+        linea, columna, longitud = self.posicion_error()
+        parametros = {nombre: valor.replace('\n', SALTO_DE_LINEA)
+                      for nombre, valor in parametros.items()}
+        self.errors.append(nuevo_error(
+            mensaje, linea, self.get_current_line_content(linea), columna,
+            longitud, parametros))
 
+    # ------------------------------------------------------------------
+    # Programa, bloques y sentencias
+    # ------------------------------------------------------------------
     def programa(self):
+        # Programa -> Definicion
         node = Node("Programa")
-        node_definicion = self.definicion()
-        node.children = [node_definicion]
+        self.definicion().parent = node
         return node
 
     def definicion(self):
+        # Definicion -> qhapaq ( ) Bloque
         node = Node("Definicion")
-        self.consume(EtiquetasAntachawy.PROGRAMA,
-                     LexemasAntachawy.QHAPAQ, node)
-        self.consume(EtiquetasAntachawy.PAREN_IZQ,
-                     LexemasAntachawy.PAREN_IZQ, node)
-        self.consume(EtiquetasAntachawy.PAREN_DER,
-                     LexemasAntachawy.PAREN_DER, node)
-        self.consume(EtiquetasAntachawy.SALTO_LINEA,
-                     LexemasAntachawy.SALTO_LINEA, node)
-        self.consume(EtiquetasAntachawy.LLAVE_IZQ,
-                     LexemasAntachawy.LLAVE_IZQ, node)
-        self.consume(EtiquetasAntachawy.SALTO_LINEA,
-                     LexemasAntachawy.SALTO_LINEA, node)
-        node_lista_sentencias = self.lista_sentencias()
-        node_lista_sentencias.parent = node
-        self.consume(EtiquetasAntachawy.LLAVE_DER,
-                     LexemasAntachawy.LLAVE_DER, node)
+        self.consume(E.PROGRAMA, node)
+        self.consume(E.PAREN_IZQ, node)
+        self.consume(E.PAREN_DER, node)
+        self.bloque().parent = node
+        return node
+
+    def bloque(self):
+        # Bloque -> { NL ListaSentencias }
+        node = Node("Bloque")
+        self.consume(E.LLAVE_IZQ, node)
+        self.consume(E.SALTO_LINEA, node)
+        self.lista_sentencias().parent = node
+        self.consume(E.LLAVE_DER, node)
         return node
 
     def lista_sentencias(self):
-        node = Node("ListaSentencias")
-        if self.current_token is None:
-            return node
-        if self.current_token.etiqueta in primeros["ListaSentencias"]:
-            node_sentencia = self.sentencias()
-            node_sentencia.parent = node
-            node_lista_sentencias = self.lista_sentencias()
-            node_lista_sentencias.parent = node
-        return node
+        # ListaSentencias -> Sentencias ListaSentencias | ε
+        # Se implementa con un bucle (sin recursión) para no depender del
+        # límite de recursión de Python en programas largos; el árbol queda
+        # igual al de la versión recursiva.
+        raiz = Node("ListaSentencias")
+        actual = raiz
+        while True:
+            if self.etiqueta in PRIMEROS["Sentencias"]:
+                self.sentencias().parent = actual
+                actual = Node("ListaSentencias", parent=actual)
+            elif (self.etiqueta in SIGUIENTES["ListaSentencias"]
+                  or self.etiqueta == E.FIN_ARCHIVO):
+                return raiz
+            else:
+                # Sentencia que no empieza con un token válido: se reporta,
+                # se salta la línea completa y se sigue con la siguiente.
+                self.error_esperado(PRIMEROS["Sentencias"], actual)
+                if self.etiqueta == E.SALTO_LINEA:
+                    self.next_token()
+                    self.en_panico = False
 
     def sentencias(self):
+        # Sentencias -> (Declaraciones | Asignaciones | Condicional
+        #                | Impresiones | Mientras | Para) NL
         node = Node("Sentencias")
-        if self.current_token.etiqueta in primeros["Declaraciones"]:
-            node_declaraciones = self.declaraciones()
-            node_declaraciones.parent = node
-        elif self.current_token.etiqueta in primeros["Asignaciones"]:
-            node_asignaciones = self.asignaciones()
-            node_asignaciones.parent = node
-        elif self.current_token.etiqueta in primeros["Impresiones"]:
-            node_impresion = self.impresion()
-            node_impresion.parent = node
-        elif self.current_token.etiqueta in primeros["Condicional"]:
-            node_condicional = self.condicional()
-            node_condicional.parent = node
-        self.consume(EtiquetasAntachawy.SALTO_LINEA,
-                     LexemasAntachawy.SALTO_LINEA, node)
-        return node
-
-    def condicional(self):
-        node = Node("Condicional")
-        self.consume(EtiquetasAntachawy.CONDICION_ARI,
-                     LexemasAntachawy.ARI, node)
-        self.consume(EtiquetasAntachawy.PAREN_IZQ,
-                     LexemasAntachawy.PAREN_IZQ, node)
-        node_expresion = self.expresion_condicion()
-        node_expresion.parent = node
-        self.consume(EtiquetasAntachawy.PAREN_DER,
-                     LexemasAntachawy.PAREN_DER, node)
-        self.consume(EtiquetasAntachawy.SALTO_LINEA,
-                     LexemasAntachawy.SALTO_LINEA, node)
-        self.consume(EtiquetasAntachawy.LLAVE_IZQ,
-                     LexemasAntachawy.LLAVE_IZQ, node)
-        self.consume(EtiquetasAntachawy.SALTO_LINEA,
-                     LexemasAntachawy.SALTO_LINEA, node)
-        node_lista_sentencias = self.lista_sentencias()
-        node_lista_sentencias.parent = node
-        self.consume(EtiquetasAntachawy.LLAVE_DER,
-                     LexemasAntachawy.LLAVE_DER, node)
-        self.consume(EtiquetasAntachawy.SALTO_LINEA,
-                     LexemasAntachawy.SALTO_LINEA, node)
-        node_condicional_prime = self.condicional_prime()
-        node_condicional_prime.parent = node
-        return node
-
-    def condicional_prime(self):
-        node = Node("CondicionalPrime")
-        if (
-            self.current_token.etiqueta
-            == EtiquetasAntachawy.CONDICION_MANA_CHAYQA_ARI
-        ):
-            self.consume(
-                EtiquetasAntachawy.CONDICION_MANA_CHAYQA_ARI,
-                LexemasAntachawy.MANA_CHAYQA_ARI,
-                node
-            )
-            self.consume(
-                EtiquetasAntachawy.PAREN_IZQ,
-                LexemasAntachawy.PAREN_IZQ,
-                node
-            )
-            node_expresion = self.expresion_condicion()
-            node_expresion.parent = node
-            self.consume(
-                EtiquetasAntachawy.PAREN_DER,
-                LexemasAntachawy.PAREN_DER,
-                node
-            )
-            self.consume(
-                EtiquetasAntachawy.SALTO_LINEA,
-                LexemasAntachawy.SALTO_LINEA,
-                node
-            )
-            self.consume(
-                EtiquetasAntachawy.LLAVE_IZQ,
-                LexemasAntachawy.LLAVE_IZQ,
-                node
-            )
-            self.consume(
-                EtiquetasAntachawy.SALTO_LINEA,
-                LexemasAntachawy.SALTO_LINEA,
-                node
-            )
-            node_lista_sentencias = self.lista_sentencias()
-            node_lista_sentencias.parent = node
-            self.consume(
-                EtiquetasAntachawy.LLAVE_DER,
-                LexemasAntachawy.LLAVE_DER,
-                node
-            )
-            self.consume(
-                EtiquetasAntachawy.SALTO_LINEA,
-                LexemasAntachawy.SALTO_LINEA,
-                node
-            )
-            node_condicional_prime = self.condicional_prime()
-            node_condicional_prime.parent = node
-
-        elif (self.current_token.etiqueta
-              == EtiquetasAntachawy.CONDICION_MANA_CHAYQA):
-            self.consume(EtiquetasAntachawy.CONDICION_MANA_CHAYQA,
-                         LexemasAntachawy.MANA_CHAYQA, node)
-            self.consume(EtiquetasAntachawy.SALTO_LINEA,
-                         LexemasAntachawy.SALTO_LINEA, node)
-            self.consume(EtiquetasAntachawy.LLAVE_IZQ,
-                         LexemasAntachawy.LLAVE_IZQ, node)
-            self.consume(EtiquetasAntachawy.SALTO_LINEA,
-                         LexemasAntachawy.SALTO_LINEA, node)
-            node_lista_sentencias = self.lista_sentencias()
-            node_lista_sentencias.parent = node
-            self.consume(EtiquetasAntachawy.LLAVE_DER,
-                         LexemasAntachawy.LLAVE_DER, node)
-            self.consume(EtiquetasAntachawy.SALTO_LINEA,
-                         LexemasAntachawy.SALTO_LINEA, node)
-        return node
-
-    def expresion_condicion(self):
-        node = Node("ExpresionCondicion")
-        if self.current_token.etiqueta in primeros["ExpresionCondicion"]:
-            node_expresion = self.expresion_relacional()
-            node_expresion.parent = node
-            node_expresion_condicion_prime = self.expresion_condicion_prime()
-            node_expresion_condicion_prime.parent = node
-        else:
-            lexema = (
-                SALTO_DE_LINEA
-                if self.current_token.lexema == '\n'
-                else self.current_token.lexema
-            )
-            mensaje = f"'{lexema}' mana expresion condicional kanchu."
-            self.panic_mode(mensaje, EtiquetasAntachawy.SALTO_LINEA,
-                            parent=node)
-        return node
-
-    def expresion_condicion_prime(self):
-        node = Node("ExpresionCondicionPrime")
-        if self.current_token.etiqueta in primeros["ExpresionCondicionPrime"]:
-            node_operador_logico = self.operador_logico()
-            node_operador_logico.parent = node
-            node_expresion_condicion = self.expresion_condicion()
-            node_expresion_condicion.parent = node
-        return node
-
-    def expresion_relacional(self):
-        node = Node("ExpresionRelacional")
-        node_expresion = self.termino()
-        node_expresion.parent = node
-        node_operador_relacional = self.operador_relacional()
-        node_operador_relacional.parent = node
-        node_expresion_relacional = self.termino()
-        node_expresion_relacional.parent = node
-        return node
-
-    def operador_logico(self):
-        node = Node("OperadorLogico")
-        if self.current_token.etiqueta in primeros["OperadorLogico"]:
-            node_logico = Node(self.current_token.etiqueta)
-            Node(self.current_token.lexema, parent=node_logico)
-            self.consume(self.current_token.etiqueta,
-                         self.current_token.lexema, node)
-        return node
-
-    def operador_relacional(self):
-        node = Node("OperadorRelacional")
-        if self.current_token.etiqueta in primeros["OperadorRelacional"]:
-            node_relacional = Node(self.current_token.etiqueta)
-            Node(self.current_token.lexema, parent=node_relacional)
-            self.consume(self.current_token.etiqueta,
-                         self.current_token.lexema, node)
-        else:
-            lexema = (
-                SALTO_DE_LINEA
-                if self.current_token.lexema == '\n'
-                else self.current_token.lexema
-            )
-            mensaje = f"'{lexema}' mana ruwarikuq relasional kanchu."
-            self.panic_mode(mensaje, EtiquetasAntachawy.SALTO_LINEA,
-                            parent=node)
+        if self.etiqueta in PRIMEROS["Declaraciones"]:
+            self.declaraciones().parent = node
+        elif self.etiqueta in PRIMEROS["Asignaciones"]:
+            self.asignaciones().parent = node
+        elif self.etiqueta in PRIMEROS["Impresiones"]:
+            self.impresion().parent = node
+        elif self.etiqueta in PRIMEROS["Condicional"]:
+            self.condicional().parent = node
+        elif self.etiqueta in PRIMEROS["Mientras"]:
+            self.mientras().parent = node
+        elif self.etiqueta in PRIMEROS["Para"]:
+            self.para().parent = node
+        self.consume(E.SALTO_LINEA, node)
         return node
 
     def declaraciones(self):
+        # Declaraciones -> Tipo id DeclaracionesPrime
         node = Node("Declaraciones")
-        node_tipo = self.tipo()
-        node_tipo.parent = node
-        node_id = Node(self.current_token.etiqueta)
-        node_id.parent = node
-        self.consume(EtiquetasAntachawy.ID, LexemasAntachawy.ID, node_id)
-        node_declaraciones_prime = self.declaraciones_prime()
-        node_declaraciones_prime.parent = node
+        self.tipo().parent = node
+        self.consume(E.ID, Node("ID", parent=node))
+        self.declaraciones_prime().parent = node
         return node
 
     def declaraciones_prime(self):
+        # DeclaracionesPrime -> = Expresion | ε
         node = Node("DeclaracionesPrime")
-        if self.current_token.etiqueta in primeros["DeclaracionesPrime"]:
-            node_asignacion = Node(self.current_token.etiqueta)
-            node_asignacion.parent = node
-            self.consume(EtiquetasAntachawy.ASIGNACION,
-                         LexemasAntachawy.ASIGNA, node_asignacion)
-            node_expresion = self.expresion()
-            node_expresion.parent = node
+        if self.etiqueta == E.ASIGNACION:
+            self.consume(E.ASIGNACION, Node("ASIGNACION", parent=node))
+            self.expresion().parent = node
         return node
 
     def asignaciones(self):
+        # Asignaciones -> id = Expresion
         node = Node("Asignaciones")
-        node_id = Node(self.current_token.etiqueta, parent=node)
-        self.consume(EtiquetasAntachawy.ID,
-                     LexemasAntachawy.ID, node_id)
-        node_asignacion = Node(self.current_token.etiqueta, parent=node)
-        self.consume(EtiquetasAntachawy.ASIGNACION,
-                     LexemasAntachawy.ASIGNA, node_asignacion)
-        node_expresion = self.expresion()
-        node_expresion.parent = node
+        self.consume(E.ID, Node("ID", parent=node))
+        self.consume(E.ASIGNACION, Node("ASIGNACION", parent=node))
+        self.expresion().parent = node
         return node
 
     def impresion(self):
+        # Impresiones -> rikuchiy ( ExpresionImpresion )
         node = Node("Impresiones")
-        self.consume(EtiquetasAntachawy.IMPRESION,
-                     LexemasAntachawy.RIKUCHIY, node)
-        self.consume(EtiquetasAntachawy.PAREN_IZQ,
-                     LexemasAntachawy.PAREN_IZQ, node)
-        node_expresion_impresion = self.expresion_impresion()
-        node_expresion_impresion.parent = node
-        self.consume(EtiquetasAntachawy.PAREN_DER,
-                     LexemasAntachawy.PAREN_DER, node)
-        return node
-
-    def tipo(self):
-        node = Node("Tipo")
-        node_tipo = Node(self.current_token.etiqueta)
-        Node(self.current_token.lexema, parent=node_tipo)
-        self.consume(self.current_token.etiqueta,
-                     self.current_token.lexema, node)
-        return node
-
-    def expresion(self):
-        node = Node("Expresion")
-        node_expresion_multiplicativa = self.expresion_multiplicativa()
-        node_expresion_multiplicativa.parent = node
-        node_expresion_aditiva_prime = self.expresion_aditiva_prime()
-        node_expresion_aditiva_prime.parent = node
-        return node
-
-    def expresion_aditiva_prime(self):
-        node = Node("ExpresionAditivaPrime")
-        if self.current_token.etiqueta in primeros["OperadorAditivo"]:
-            node_operador_aditivo = self.operador_aditivo()
-            node_operador_aditivo.parent = node
-            node_expresion_multiplicativa = self.expresion_multiplicativa()
-            node_expresion_multiplicativa.parent = node
-            node_expresion_aditiva_prime = self.expresion_aditiva_prime()
-            node_expresion_aditiva_prime.parent = node
-        return node
-
-    def expresion_multiplicativa(self):
-        node = Node("ExpresionMultiplicativa")
-        node_termino = self.termino()
-        node_termino.parent = node
-        node_expresion_multiplicativa_prime = (
-            self.expresion_multiplicativa_prime()
-        )
-        node_expresion_multiplicativa_prime.parent = node
-        return node
-
-    def expresion_multiplicativa_prime(self):
-        node = Node("ExpresionMultiplicativaPrime")
-        if self.current_token.etiqueta in primeros["OperadorMultiplicativo"]:
-            node_operador_multiplicativo = self.operador_multiplicativo()
-            node_operador_multiplicativo.parent = node
-            node_termino = self.termino()
-            node_termino.parent = node
-            node_expresion_multiplicativa_prime = (
-                self.expresion_multiplicativa_prime()
-            )
-            node_expresion_multiplicativa_prime.parent = node
-        return node
-
-    def operador_aditivo(self):
-        node = Node("OperadorAditivo")
-        node_aditivo = Node(self.current_token.etiqueta)
-        Node(self.current_token.lexema, parent=node_aditivo)
-        self.consume(self.current_token.etiqueta,
-                     self.current_token.lexema, node)
-        return node
-
-    def operador_multiplicativo(self):
-        node = Node("OperadorMultiplicativo")
-        node_multiplicativo = Node(self.current_token.etiqueta)
-        Node(self.current_token.lexema, parent=node_multiplicativo)
-        self.consume(self.current_token.etiqueta,
-                     self.current_token.lexema, node)
-        return node
-
-    def termino(self):
-        node = Node("Termino")
-        if self.current_token.etiqueta in primeros["Termino"]:
-            if self.current_token.etiqueta == EtiquetasAntachawy.PAREN_IZQ:
-                self.consume(EtiquetasAntachawy.PAREN_IZQ,
-                             LexemasAntachawy.PAREN_IZQ, node)
-                node_expresion = self.expresion()
-                node_expresion.parent = node
-                self.consume(EtiquetasAntachawy.PAREN_DER,
-                             LexemasAntachawy.PAREN_DER, node)
-            else:
-                node_termino = Node(self.current_token.etiqueta)
-                node_termino.parent = node
-                self.consume(self.current_token.etiqueta,
-                             self.current_token.lexema, node_termino)
-
-        else:
-            lexema = (
-                SALTO_DE_LINEA
-                if self.current_token.lexema == '\n'
-                else self.current_token.lexema
-            )
-            mensaje = f"Error: '{lexema}'"
-            self.panic_mode(mensaje, EtiquetasAntachawy.SALTO_LINEA,
-                            parent=node)
+        self.consume(E.IMPRESION, node)
+        self.consume(E.PAREN_IZQ, node)
+        self.expresion_impresion().parent = node
+        self.consume(E.PAREN_DER, node)
         return node
 
     def expresion_impresion(self):
+        # ExpresionImpresion -> Expresion ExpresionImpresionPrime
         node = Node("ExpresionImpresion")
-        node_expresion = self.expresion()
-        node_expresion.parent = node
-        node_expresion_impresion_prime = self.expresion_impresion_prime()
-        node_expresion_impresion_prime.parent = node
+        self.expresion().parent = node
+        self.expresion_impresion_prime().parent = node
         return node
 
     def expresion_impresion_prime(self):
+        # ExpresionImpresionPrime -> , ExpresionImpresion | ε
         node = Node("ExpresionImpresionPrime")
-        if self.current_token is None:
-            return node
-        if self.current_token.etiqueta in primeros["ExpresionImpresionPrime"]:
-            self.consume(EtiquetasAntachawy.COMA, LexemasAntachawy.COMA, node)
-            node_expresion_impresion = self.expresion_impresion()
-            node_expresion_impresion.parent = node
+        if self.etiqueta == E.COMA:
+            self.consume(E.COMA, node)
+            self.expresion_impresion().parent = node
+        return node
+
+    def tipo(self):
+        # Tipo -> yupay | chunkayuq | sananpa | qaytu | bool
+        node = Node("Tipo")
+        if self.etiqueta in PRIMEROS["Tipo"]:
+            self.consume(self.etiqueta, node)
+        else:
+            self.error_esperado(PRIMEROS["Tipo"], node)
+        return node
+
+    # ------------------------------------------------------------------
+    # Condicionales
+    # ------------------------------------------------------------------
+    def condicional(self):
+        # Condicional -> ari ( Expresion ) Bloque CondicionalPrime
+        node = Node("Condicional")
+        self.consume(E.CONDICION_ARI, node)
+        self.consume(E.PAREN_IZQ, node)
+        self.expresion().parent = node
+        self.consume(E.PAREN_DER, node)
+        self.bloque().parent = node
+        self.condicional_prime().parent = node
+        return node
+
+    def condicional_prime(self):
+        # CondicionalPrime -> mana_chayqa_ari ( Expresion ) Bloque
+        #                     CondicionalPrime
+        #                   | mana_chayqa Bloque
+        #                   | ε
+        node = Node("CondicionalPrime")
+        if self.etiqueta == E.CONDICION_MANA_CHAYQA_ARI:
+            self.consume(E.CONDICION_MANA_CHAYQA_ARI, node)
+            self.consume(E.PAREN_IZQ, node)
+            self.expresion().parent = node
+            self.consume(E.PAREN_DER, node)
+            self.bloque().parent = node
+            self.condicional_prime().parent = node
+        elif self.etiqueta == E.CONDICION_MANA_CHAYQA:
+            self.consume(E.CONDICION_MANA_CHAYQA, node)
+            self.bloque().parent = node
+        return node
+
+    # ------------------------------------------------------------------
+    # Bucles
+    # ------------------------------------------------------------------
+    def mientras(self):
+        # Mientras -> chaykama ( Expresion ) Bloque
+        node = Node("Mientras")
+        self.consume(E.BUCLE_WHILE, node)
+        self.consume(E.PAREN_IZQ, node)
+        self.expresion().parent = node
+        self.consume(E.PAREN_DER, node)
+        self.bloque().parent = node
+        return node
+
+    def para(self):
+        # Para -> imapaq ( ParaInicio ; Expresion ; Asignaciones ) Bloque
+        node = Node("Para")
+        self.consume(E.BUCLE_FOR, node)
+        self.consume(E.PAREN_IZQ, node)
+        self.para_inicio().parent = node
+        self.consume(E.PUNTOYCOMA, node)
+        self.expresion().parent = node
+        self.consume(E.PUNTOYCOMA, node)
+        self.asignaciones().parent = node
+        self.consume(E.PAREN_DER, node)
+        self.bloque().parent = node
+        return node
+
+    def para_inicio(self):
+        # ParaInicio -> Declaraciones | Asignaciones
+        node = Node("ParaInicio")
+        if self.etiqueta in PRIMEROS["Declaraciones"]:
+            self.declaraciones().parent = node
+        elif self.etiqueta in PRIMEROS["Asignaciones"]:
+            self.asignaciones().parent = node
+        else:
+            self.error_esperado(PRIMEROS["ParaInicio"], node)
+        return node
+
+    # ------------------------------------------------------------------
+    # Expresiones. Cada nivel tiene mayor precedencia que el anterior:
+    #   ||  <  &&  <  relacionales  <  + -  <  * /  <  - unario
+    # ------------------------------------------------------------------
+    def operador(self, nombre):
+        # Operador -> el token actual (ya verificado por quien llama)
+        node = Node(nombre)
+        self.consume(self.etiqueta, node)
+        return node
+
+    def _nivel(self, nombre, operando, nombre_prima, operadores,
+               nombre_operador):
+        """
+        Nivel de precedencia con operadores asociativos por la izquierda:
+            X -> Operando XPrime
+            XPrime -> Operador Operando XPrime | ε
+        La recursión de XPrime se implementa con un bucle; el árbol queda
+        igual que con la versión recursiva.
+        """
+        node = Node(nombre)
+        operando().parent = node
+        prima = Node(nombre_prima, parent=node)
+        while self.etiqueta in operadores:
+            self.operador(nombre_operador).parent = prima
+            operando().parent = prima
+            prima = Node(nombre_prima, parent=prima)
+        return node
+
+    def expresion(self):
+        # Expresion -> ExpresionY ExpresionOPrime
+        # ExpresionOPrime -> || ExpresionY ExpresionOPrime | ε
+        return self._nivel("Expresion", self.expresion_y, "ExpresionOPrime",
+                           {E.O_LOGICO}, "OperadorLogico")
+
+    def expresion_y(self):
+        # ExpresionY -> ExpresionRelacional ExpresionYPrime
+        # ExpresionYPrime -> && ExpresionRelacional ExpresionYPrime | ε
+        return self._nivel("ExpresionY", self.expresion_relacional,
+                           "ExpresionYPrime", {E.Y_LOGICO}, "OperadorLogico")
+
+    def expresion_relacional(self):
+        # ExpresionRelacional -> ExpresionAditiva ExpresionRelacionalPrime
+        # ExpresionRelacionalPrime -> OperadorRelacional ExpresionAditiva | ε
+        # (no es asociativa: "a < b < c" no es válido)
+        node = Node("ExpresionRelacional")
+        self.expresion_aditiva().parent = node
+        prima = Node("ExpresionRelacionalPrime", parent=node)
+        if self.etiqueta in PRIMEROS["OperadorRelacional"]:
+            self.operador("OperadorRelacional").parent = prima
+            self.expresion_aditiva().parent = prima
+        return node
+
+    def expresion_aditiva(self):
+        # ExpresionAditiva -> ExpresionMultiplicativa ExpresionAditivaPrime
+        return self._nivel("ExpresionAditiva", self.expresion_multiplicativa,
+                           "ExpresionAditivaPrime",
+                           PRIMEROS["OperadorAditivo"], "OperadorAditivo")
+
+    def expresion_multiplicativa(self):
+        # ExpresionMultiplicativa -> Termino ExpresionMultiplicativaPrime
+        return self._nivel("ExpresionMultiplicativa", self.termino,
+                           "ExpresionMultiplicativaPrime",
+                           PRIMEROS["OperadorMultiplicativo"],
+                           "OperadorMultiplicativo")
+
+    def termino(self):
+        # Termino -> - Termino | ( Expresion ) | id | entero | flotante
+        #          | caracter | cadena | chiqaq | yanqa
+        node = Node("Termino")
+        if self.etiqueta == E.MENOS:
+            self.consume(E.MENOS, node)
+            self.termino().parent = node
+        elif self.etiqueta == E.PAREN_IZQ:
+            self.consume(E.PAREN_IZQ, node)
+            self.expresion().parent = node
+            self.consume(E.PAREN_DER, node)
+        elif self.etiqueta in PRIMEROS["Termino"]:
+            self.consume(self.etiqueta, Node(self.etiqueta, parent=node))
+        else:
+            self.error_esperado(PRIMEROS["Termino"], node)
         return node
 
     def save_syntax_outputs(self, root: object, base_filename: str):
