@@ -1,0 +1,61 @@
+﻿codigo,donde,espanol,quechua,origen,nota
+CON001,Consola: títulos de la lista de errores,Errores de compilación,Pantachakuna ruwanakusqapi,equipo,
+CON002,Consola: títulos de la lista de errores,Error {codigo} en {ubicacion}: ,Pantachay {codigo} {ubicacion} siq'isqapi: ,equipo,"Copiar sin traducir: {codigo}, {ubicacion}"
+CON003,Consola: títulos de la lista de errores,Advertencias,Willakuykuna,borrador,
+CON004,Consola: títulos de la lista de errores,Advertencia {codigo} en {ubicacion}: ,Willakuy {codigo} {ubicacion} siq'isqapi: ,borrador,"Copiar sin traducir: {codigo}, {ubicacion}"
+LEX001,Error: al leer las letras del programa,el comentario que empieza aquí nunca se cierra; falta '*:'.,k'utu qillqa mana tukusqa chay ñiqin líniapi.,equipo,
+LEX002,Error: al leer las letras del programa,"el texto no se cerró: falta la comilla doble ("") al final de la línea.",qillqa ch’usaq simincha mana tukusqa chay ñiqin líniapi.,equipo,
+LEX003,Error: al leer las letras del programa,"un 'sananpa' solo puede tener un carácter; para un texto usa comillas dobles (""..."").",achkha uqalla qillqa ch’usaq uqallapi.,equipo,
+LEX004,Error: al leer las letras del programa,el carácter no se cerró: falta la comilla simple (').,qillqa ch’usaq uqalla mana tukusqa chay ñiqin líniapi.,equipo,
+LEX005,Error: al leer las letras del programa,un número decimal solo puede tener un punto.,t’aqraq yupay punchu hukman aswan tiyachisqa.,equipo,
+LEX006,Error: al leer las letras del programa,"un número no puede tener letras; si es un nombre de variable, debe empezar con una letra.",yupay qatiq mana hayñisqa uqallawan.,equipo,
+LEX007,Error: al leer las letras del programa,este símbolo no pertenece al lenguaje.,uqalla mana riqsisqa.,equipo,
+LEX008,Error: al leer las letras del programa,un carácter no puede estar vacío: ''.,huk sananpaqa mana ch'usaq kanmanchu: ''.,borrador,
+LEX009,Error: al leer las letras del programa,"secuencia de escape no válida: '{secuencia}'. Las válidas son \n, \t, \r, \0, \\, \' y \"".","'{secuencia}' mana allinchu. Allinkunaqa kaykuna: \n, \t, \r, \0, \\, \', \"".",borrador,Copiar sin traducir: {secuencia}
+SIN001,Error: algo falta o sobra en el programa,"se encontró '{encontrado}', pero se esperaba {esperado}.","'{encontrado}' tariqchasqa, ichaqa {esperado} suyaywasqa.",equipo,"Copiar sin traducir: {encontrado}, {esperado}"
+SEM001,"Error: algo no tiene sentido (variables, tipos)",no se puede usar '{operador}' entre un valor '{izquierdo}' y uno '{derecho}'.,mana atisqa ruwanakuy '{izquierdo}' hina '{derecho}'wan.,equipo,"Copiar sin traducir: {derecho}, {izquierdo}, {operador}"
+SEM002,"Error: algo no tiene sentido (variables, tipos)","la variable '{nombre}' es de tipo '{tipo}', pero el valor que se le da es '{tipo_expresion}'.","t’ukupa '{nombre}'qa '{tipo}' ruwasqa, ichaqa kay rimanakuyqa '{tipo_expresion}' ruwasqa.",equipo,"Copiar sin traducir: {nombre}, {tipo}, {tipo_expresion}"
+SEM003,"Error: algo no tiene sentido (variables, tipos)","la variable '{nombre}' no fue declarada; declárala antes con su tipo, por ejemplo: yupay {nombre} = 0.",t’ukupa '{nombre}' mana willaykusqa.,equipo,Copiar sin traducir: {nombre}
+SEM004,"Error: algo no tiene sentido (variables, tipos)",la variable '{nombre}' no fue declarada.,variable '{nombre}' mana churakusqa.,equipo,Copiar sin traducir: {nombre}
+SEM005,"Error: algo no tiene sentido (variables, tipos)",la variable '{nombre}' ya fue declarada en este bloque (línea {linea}).,'{nombre}' variableqa kay bloquepi ña willaykusqaña ({linea} ñiqin siq'ipi).,borrador,"Copiar sin traducir: {linea}, {nombre}"
+SEM006,"Error: algo no tiene sentido (variables, tipos)",la variable '{nombre}' ya existe en un bloque exterior (línea {linea}); usa otro nombre.,'{nombre}' variableqa hawa bloquepi ña kachkanña ({linea} ñiqin siq'ipi); huk sutita churay.,borrador,"Copiar sin traducir: {linea}, {nombre}"
+SEM007,"Error: algo no tiene sentido (variables, tipos)","la condición debe ser de tipo 'bool', pero es '{tipo}'.","condicionqa 'bool' kanan tiyan, ichaqa '{tipo}' kachkan.",borrador,Copiar sin traducir: {tipo}
+SEM008,"Error: algo no tiene sentido (variables, tipos)","el operador '{operador}' necesita operandos 'bool', pero recibió '{izquierdo}' y '{derecho}'.","'{operador}' operadorqa 'bool' chaninkunata munan, ichaqa '{izquierdo}', '{derecho}' ima chaskirqan.",borrador,"Copiar sin traducir: {derecho}, {izquierdo}, {operador}"
+SEM009,"Error: algo no tiene sentido (variables, tipos)",el operador '{operador}' no se puede aplicar a un valor '{tipo}'.,'{operador}' operadorqa '{tipo}' chaninwan mana llamk'anmanchu.,borrador,"Copiar sin traducir: {operador}, {tipo}"
+ADV001,Aviso (el programa igual funciona),la variable '{nombre}' se declara pero nunca se usa.,"'{nombre}' variableqa willaykusqa, ichaqa mana hayk'appas llamk'achisqachu.",borrador,Copiar sin traducir: {nombre}
+ADV002,Aviso (el programa igual funciona),la variable '{nombre}' podría usarse sin tener un valor asignado.,'{nombre}' variableqa chanin mana churasqa kachkaspa llamk'achisqa kanman.,borrador,Copiar sin traducir: {nombre}
+ADV003,Aviso (el programa igual funciona),división entre cero.,ch'usaqwan rakiy.,borrador,
+EJE001,Error mientras el programa se ejecuta,el programa intentó dividir entre cero.,programaqa ch'usaqwan rakiyta munarqan.,borrador,
+EJE002,Error mientras el programa se ejecuta,el programa no terminó después de {pasos} pasos; puede ser un bucle infinito. Revisa que la condición del bucle llegue a ser falsa.,"programaqa {pasos} thatkiymanta qhipaman mana tukurqanchu; mana tukukuq muyuy kanman. Qhaway, muyuypa condicionnin yanqa kananta.",borrador,Copiar sin traducir: {pasos}
+IDE001,Lo que dice Tunki en su globo,¡Hola! Soy Tunki. Escribe tu programa y te aviso si algo no está bien.,"¡Napaykullayki! Ñuqaqa Tunki kani. Programaykita qillqay, mana allin kaqtinqa willasqayki.",borrador,
+IDE002,Lo que dice Tunki en su globo,¡Ay! Mira la línea {linea}:,¡Ay! {linea} ñiqin siq'ita qhaway:,borrador,Copiar sin traducir: {linea}
+IDE003,Lo que dice Tunki en su globo,¡Tu programa se detuvo en la línea {linea}!,¡Programayki {linea} ñiqin siq'ipi sayarqun!,borrador,Copiar sin traducir: {linea}
+IDE004,Lo que dice Tunki en su globo,¡Muy bien! Tu programa funcionó.,¡Ancha allin! Programayki allinta purirqan.,borrador,
+IDE005,Lo que dice Tunki en su globo,Primero arreglemos este error y luego lo ejecutamos.,"Ñawpaqta kay pantasqata allichasun, chaymantataq purichisun.",borrador,
+IDE006,Lo que dice Tunki en su globo,Todo se ve bien. ¡Presiona Ejecutar!,Llapan allin rikukun. ¡Purichiyta ñit'iy!,borrador,
+IDE007,Lo que dice Tunki en su globo,(hay {total} errores; este es el {numero}),({total} pantasqakuna kan; kayqa {numero} ñiqin),borrador,"Copiar sin traducir: {numero}, {total}"
+IDE008,Lo que dice Tunki en su globo,Ejecutando tu programa...,Programaykita purichichkani...,borrador,
+IDE101,Botones y paneles del entorno,Ejecutar,Purichiy,borrador,
+IDE102,Botones y paneles del entorno,Nuevo,Musuq,borrador,
+IDE103,Botones y paneles del entorno,Abrir,Kichay,borrador,
+IDE104,Botones y paneles del entorno,Guardar,Waqaychay,borrador,
+IDE105,Botones y paneles del entorno,Ejemplos,Ejemplokuna,borrador,
+IDE106,Botones y paneles del entorno,Idioma,Simi,borrador,
+IDE107,Botones y paneles del entorno,Lo que muestra tu programa,Programaykiq rikuchisqan,borrador,
+IDE108,Botones y paneles del entorno,Problemas,Sasachakuykuna,borrador,
+IDE109,Botones y paneles del entorno,No hay problemas.,Mana sasachakuykuna kanchu.,borrador,
+IDE110,Botones y paneles del entorno,Línea {linea},{linea} ñiqin siq'i,borrador,Copiar sin traducir: {linea}
+IDE111,Botones y paneles del entorno,Tu programa tiene cambios sin guardar. ¿Guardarlos?,Programaykipi mana waqaychasqa t'ikraykuna kan. ¿Waqaychasaqchu?,borrador,
+IDE112,Botones y paneles del entorno,(tu programa no mostró nada),(programaykiqa mana imatapas rikuchirqanchu),borrador,
+IDE113,Botones y paneles del entorno,Letra más grande,Aswan hatun qillqa,borrador,
+IDE114,Botones y paneles del entorno,Letra más pequeña,Aswan huch'uy qillqa,borrador,
+IDE115,Botones y paneles del entorno,"Línea {linea}, columna {columna}","{linea} ñiqin siq'i, {columna} ñiqin qillqa",borrador,"Copiar sin traducir: {columna}, {linea}"
+IDE116,Botones y paneles del entorno,Todo bien,Llapan allin,borrador,
+IDE117,Botones y paneles del entorno,Errores: {total},Pantasqakuna: {total},borrador,Copiar sin traducir: {total}
+IDE118,Botones y paneles del entorno,Avisos: {total},Willakuykuna: {total},borrador,Copiar sin traducir: {total}
+IDE119,Botones y paneles del entorno,Ejecutando...,Purichkan...,borrador,
+IDE120,Botones y paneles del entorno,Aprende a programar con Tunki,Tunkiwan programata ruwayta yachay,borrador,
+IDE121,Botones y paneles del entorno,Ejecutar el programa (F5),Programata purichiy (F5),borrador,
+IDE122,Botones y paneles del entorno,Programas listos para probar y aprender,Yachanaykipaq wakichisqa programakuna,borrador,
+IDE123,Botones y paneles del entorno,Presiona Ejecutar y aquí verás lo que muestra tu programa.,"Purichiyta ñit'iy, kaypitaq programaykiq rikuchisqanta rikunki.",borrador,
+IDE124,Botones y paneles del entorno,Textos traducidos al quechua: {listos} de {total},"Runasimiman t'ikrasqa qillqakuna: {listos}, {total}manta",borrador,"Copiar sin traducir: {listos}, {total}"

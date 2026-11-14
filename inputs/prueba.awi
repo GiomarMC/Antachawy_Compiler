@@ -1,6 +1,6 @@
 qhapaq()
 {
-    siqiy("Bienvenido a Antachawy")
+    rikuchiy("Bienvenido a Antachawy")
     yupay x 
     yupay a = 5
     yupay b = 10

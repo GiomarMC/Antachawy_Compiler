@@ -1,0 +1,10 @@
+:: imapaq kutin-kutin ruwan, yupasqa kutikama.
+:: 7 yupaypa mirachiy tablan.
+qhapaq()
+{
+    yupay yupana = 7
+    imapaq (yupay i = 1; i <= 10; i = i + 1)
+    {
+        rikuchiy(yupana, " x ", i, " = ", yupana * i)
+    }
+}

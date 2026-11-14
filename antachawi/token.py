@@ -1,14 +1,17 @@
-class Token(object):
-    def __init__(self, lexema, etiqueta, linea, idx):
+class Token:
+    """Unidad léxica con su posición en el archivo fuente."""
+
+    def __init__(self, lexema, etiqueta, linea, idx, columna=1):
         self.lexema = lexema
         self.etiqueta = etiqueta
-        self.linea = linea
-        self.idx = idx
+        self.linea = linea        # línea, empieza en 1
+        self.idx = idx            # posición absoluta en el archivo
+        self.columna = columna    # columna, empieza en 1
 
-    def found_at(self) -> str:
-        # Devuelve una cadena que representa la posición del token en el formato (línea, índice)
-        return "({}, {})".format(self.linea, self.idx - 1)
+    @property
+    def columna_final(self) -> int:
+        """Columna justo después del último carácter del token."""
+        return self.columna + len(self.lexema)
 
     def __str__(self) -> str:
-        # Devuelve una representación en cadena del token en el formato (lexema, etiqueta, línea)
-        return "({}, {}, {})".format(self.lexema, self.etiqueta, self.linea)
+        return f"({self.lexema}, {self.etiqueta}, {self.linea}:{self.columna})"

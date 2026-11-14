@@ -1,0 +1,12 @@
+:: chaykama repite mientras la condición sea verdadera.
+:: Tunki cuenta sus plumas de una en una.
+qhapaq()
+{
+    yupay plumas = 1
+    chaykama (plumas <= 5)
+    {
+        rikuchiy("Pluma número ", plumas)
+        plumas = plumas + 1
+    }
+    rikuchiy("¡Listo, conté todas!")
+}

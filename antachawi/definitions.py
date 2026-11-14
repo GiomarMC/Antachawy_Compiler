@@ -11,8 +11,8 @@ class LexemasAntachawy:
     RIKUCHIY = "rikuchiy"                       # print
     IMAPAQ = "imapaq"                           # for
     CHAYKAMA = "chaykama"                       # while
-    YANQA = "yanqa"                             # true
-    CHIQAQ = "chiqaq"                           # false
+    YANQA = "yanqa"                             # false
+    CHIQAQ = "chiqaq"                           # true
     CUTICHIY = "cutichiy"                       # return
     SALTO_LINEA = "\n"                          # salto de linea
     LLAVE_IZQ = "{"                             # {
@@ -33,13 +33,14 @@ class LexemasAntachawy:
     DIFERENTE = "!="                            # !=
     MAYOR_IGUAL = ">="                          # >=
     MENOR_IGUAL = "<="                          # <=
-    Y = "&&"                                    # &&
-    O = "||"                                    # ||
+    Y_LOGICO = "&&"                             # &&
+    O_LOGICO = "||"                             # ||
     NUMEROENTERO = "entero"                     # numero
     NUMEROFLOTANTE = "flotante"                 # flotante
     CARACTER = "caracter"                       # caracter
     CADENA = "cadena"                           # cadena
     ID = "id"                                   # identificador
+
 
 class EtiquetasAntachawy:
     TIPO_YUPAY = "TIPOENTERO"
@@ -80,201 +81,67 @@ class EtiquetasAntachawy:
     DIFERENTE = "DIFERENTE"
     MAYOR_IGUAL = "MAYOR_IGUAL"
     MENOR_IGUAL = "MENOR_IGUAL"
-    Y = "OPERADOR_Y"
-    O = "OPERADOR_O"
+    Y_LOGICO = "OPERADOR_Y"
+    O_LOGICO = "OPERADOR_O"
+    FIN_ARCHIVO = "FIN_ARCHIVO"
+
+
+L = LexemasAntachawy
+E = EtiquetasAntachawy
 
 lexema_a_etiqueta = {
-    LexemasAntachawy.QHAPAQ:            EtiquetasAntachawy.PROGRAMA,
-    LexemasAntachawy.YUPAY:             EtiquetasAntachawy.TIPO_YUPAY,
-    LexemasAntachawy.CHUNKAYUQ:         EtiquetasAntachawy.TIPO_CHUNKAYUQ,
-    LexemasAntachawy.SANANPA:           EtiquetasAntachawy.TIPO_SANANPA,
-    LexemasAntachawy.QAYTU:             EtiquetasAntachawy.TIPO_QAYTU,
-    LexemasAntachawy.BOOL:              EtiquetasAntachawy.TIPO_BOOL,
-    LexemasAntachawy.ASIGNA:            EtiquetasAntachawy.ASIGNACION,
-    LexemasAntachawy.ARI:               EtiquetasAntachawy.CONDICION_ARI,
-    LexemasAntachawy.MANA_CHAYQA_ARI:   EtiquetasAntachawy.CONDICION_MANA_CHAYQA_ARI,
-    LexemasAntachawy.MANA_CHAYQA:       EtiquetasAntachawy.CONDICION_MANA_CHAYQA,
-    LexemasAntachawy.RIKUCHIY:          EtiquetasAntachawy.IMPRESION,
-    LexemasAntachawy.IMAPAQ:            EtiquetasAntachawy.BUCLE_FOR,
-    LexemasAntachawy.CHAYKAMA:          EtiquetasAntachawy.BUCLE_WHILE,
-    LexemasAntachawy.SALTO_LINEA:       EtiquetasAntachawy.SALTO_LINEA,
-    LexemasAntachawy.LLAVE_IZQ:         EtiquetasAntachawy.LLAVE_IZQ,
-    LexemasAntachawy.LLAVE_DER:         EtiquetasAntachawy.LLAVE_DER,
-    LexemasAntachawy.PAREN_IZQ:         EtiquetasAntachawy.PAREN_IZQ,
-    LexemasAntachawy.PAREN_DER:         EtiquetasAntachawy.PAREN_DER,
-    LexemasAntachawy.COMA:              EtiquetasAntachawy.COMA,
-    LexemasAntachawy.PUNTOYCOMA:        EtiquetasAntachawy.PUNTOYCOMA,
-    LexemasAntachawy.YANQA:             EtiquetasAntachawy.TRUE,
-    LexemasAntachawy.CHIQAQ:            EtiquetasAntachawy.FALSE,
-    LexemasAntachawy.MAS:               EtiquetasAntachawy.MAS,
-    LexemasAntachawy.MENOS:             EtiquetasAntachawy.MENOS,
-    LexemasAntachawy.MULTIPLICA:        EtiquetasAntachawy.MULTIPLICA,
-    LexemasAntachawy.DIVIDE:            EtiquetasAntachawy.DIVIDE,
-    LexemasAntachawy.MAYOR:             EtiquetasAntachawy.MAYOR,
-    LexemasAntachawy.MENOR:             EtiquetasAntachawy.MENOR,
-    LexemasAntachawy.IGUAL:             EtiquetasAntachawy.IGUAL,
-    LexemasAntachawy.DIFERENTE:         EtiquetasAntachawy.DIFERENTE,
-    LexemasAntachawy.MAYOR_IGUAL:       EtiquetasAntachawy.MAYOR_IGUAL,
-    LexemasAntachawy.MENOR_IGUAL:       EtiquetasAntachawy.MENOR_IGUAL,
-    LexemasAntachawy.Y:                 EtiquetasAntachawy.Y,
-    LexemasAntachawy.O:                 EtiquetasAntachawy.O,
-    LexemasAntachawy.NUMEROENTERO:      EtiquetasAntachawy.NUMEROENTERO,
-    LexemasAntachawy.NUMEROFLOTANTE:    EtiquetasAntachawy.NUMEROFLOTANTE,
-    LexemasAntachawy.CARACTER:          EtiquetasAntachawy.CARACTER,
-    LexemasAntachawy.CADENA:            EtiquetasAntachawy.CADENA,
-    LexemasAntachawy.ID:                EtiquetasAntachawy.ID,
+    L.QHAPAQ: E.PROGRAMA,
+    L.YUPAY: E.TIPO_YUPAY,
+    L.CHUNKAYUQ: E.TIPO_CHUNKAYUQ,
+    L.SANANPA: E.TIPO_SANANPA,
+    L.QAYTU: E.TIPO_QAYTU,
+    L.BOOL: E.TIPO_BOOL,
+    L.ASIGNA: E.ASIGNACION,
+    L.ARI: E.CONDICION_ARI,
+    L.MANA_CHAYQA_ARI: E.CONDICION_MANA_CHAYQA_ARI,
+    L.MANA_CHAYQA: E.CONDICION_MANA_CHAYQA,
+    L.RIKUCHIY: E.IMPRESION,
+    L.IMAPAQ: E.BUCLE_FOR,
+    L.CHAYKAMA: E.BUCLE_WHILE,
+    L.SALTO_LINEA: E.SALTO_LINEA,
+    L.LLAVE_IZQ: E.LLAVE_IZQ,
+    L.LLAVE_DER: E.LLAVE_DER,
+    L.PAREN_IZQ: E.PAREN_IZQ,
+    L.PAREN_DER: E.PAREN_DER,
+    L.COMA: E.COMA,
+    L.PUNTOYCOMA: E.PUNTOYCOMA,
+    L.YANQA: E.FALSE,
+    L.CHIQAQ: E.TRUE,
+    L.MAS: E.MAS,
+    L.MENOS: E.MENOS,
+    L.MULTIPLICA: E.MULTIPLICA,
+    L.DIVIDE: E.DIVIDE,
+    L.MAYOR: E.MAYOR,
+    L.MENOR: E.MENOR,
+    L.IGUAL: E.IGUAL,
+    L.DIFERENTE: E.DIFERENTE,
+    L.MAYOR_IGUAL: E.MAYOR_IGUAL,
+    L.MENOR_IGUAL: E.MENOR_IGUAL,
+    L.Y_LOGICO: E.Y_LOGICO,
+    L.O_LOGICO: E.O_LOGICO,
+    L.NUMEROENTERO: E.NUMEROENTERO,
+    L.NUMEROFLOTANTE: E.NUMEROFLOTANTE,
+    L.CARACTER: E.CARACTER,
+    L.CADENA: E.CADENA,
+    L.ID: E.ID,
 }
 
 simbolos_compuestos = {
-    "==": EtiquetasAntachawy.IGUAL,
-    "!=": EtiquetasAntachawy.DIFERENTE,
-    "<=": EtiquetasAntachawy.MENOR_IGUAL,
-    ">=": EtiquetasAntachawy.MAYOR_IGUAL,
-    "&&": EtiquetasAntachawy.Y,
-    "||": EtiquetasAntachawy.O
+    "==": E.IGUAL,
+    "!=": E.DIFERENTE,
+    "<=": E.MENOR_IGUAL,
+    ">=": E.MAYOR_IGUAL,
+    "&&": E.Y_LOGICO,
+    "||": E.O_LOGICO,
 }
 
-primeros = {
-    "Programa": [EtiquetasAntachawy.PROGRAMA],
-    "Definicion": [EtiquetasAntachawy.PROGRAMA],
-    "ListaSentencias": [
-        "$",
-        EtiquetasAntachawy.TIPO_YUPAY,
-        EtiquetasAntachawy.TIPO_CHUNKAYUQ,
-        EtiquetasAntachawy.TIPO_SANANPA,
-        EtiquetasAntachawy.TIPO_QAYTU,
-        EtiquetasAntachawy.TIPO_BOOL,
-        EtiquetasAntachawy.IMPRESION,
-        EtiquetasAntachawy.ID,
-        EtiquetasAntachawy.CONDICION_ARI,
-    ],
-    "Sentencias": [
-        EtiquetasAntachawy.TIPO_YUPAY,
-        EtiquetasAntachawy.TIPO_CHUNKAYUQ,
-        EtiquetasAntachawy.TIPO_SANANPA,
-        EtiquetasAntachawy.TIPO_QAYTU,
-        EtiquetasAntachawy.TIPO_BOOL,
-        EtiquetasAntachawy.IMPRESION,
-        EtiquetasAntachawy.ID,
-        EtiquetasAntachawy.CONDICION_ARI,
-    ],
-    "Declaraciones": [
-        EtiquetasAntachawy.TIPO_YUPAY,
-        EtiquetasAntachawy.TIPO_CHUNKAYUQ,
-        EtiquetasAntachawy.TIPO_SANANPA,
-        EtiquetasAntachawy.TIPO_QAYTU,
-        EtiquetasAntachawy.TIPO_BOOL
-    ],
-    "DeclaracionesPrime": [
-        EtiquetasAntachawy.ASIGNACION,
-        "$",
-    ],
-    "Asignaciones": [EtiquetasAntachawy.ID],
-    "Condicional": [EtiquetasAntachawy.CONDICION_ARI],
-    "CondicionalPrime": [
-        EtiquetasAntachawy.CONDICION_MANA_CHAYQA_ARI,
-        EtiquetasAntachawy.CONDICION_MANA_CHAYQA],
-    "Impresiones": [EtiquetasAntachawy.IMPRESION],
-    "Tipo": [
-        EtiquetasAntachawy.TIPO_YUPAY,
-        EtiquetasAntachawy.TIPO_CHUNKAYUQ,
-        EtiquetasAntachawy.TIPO_SANANPA,
-        EtiquetasAntachawy.TIPO_QAYTU,
-        EtiquetasAntachawy.TIPO_BOOL
-    ],
-    "Expresion": [
-        EtiquetasAntachawy.PAREN_IZQ,
-        EtiquetasAntachawy.ID,
-        EtiquetasAntachawy.NUMEROENTERO,
-        EtiquetasAntachawy.NUMEROFLOTANTE,
-        EtiquetasAntachawy.CARACTER,
-        EtiquetasAntachawy.CADENA,
-        EtiquetasAntachawy.TRUE,
-        EtiquetasAntachawy.FALSE
-    ],
-    "ExpresionAditiva": [
-        EtiquetasAntachawy.PAREN_IZQ,
-        EtiquetasAntachawy.ID,
-        EtiquetasAntachawy.NUMEROENTERO,
-        EtiquetasAntachawy.NUMEROFLOTANTE,
-        EtiquetasAntachawy.CARACTER,
-        EtiquetasAntachawy.CADENA,
-        EtiquetasAntachawy.TRUE,
-        EtiquetasAntachawy.FALSE
-    ],
-    "ExpresionMultiplicativa": [
-        EtiquetasAntachawy.PAREN_IZQ,
-        EtiquetasAntachawy.ID,
-        EtiquetasAntachawy.NUMEROENTERO,
-        EtiquetasAntachawy.NUMEROFLOTANTE,
-        EtiquetasAntachawy.CARACTER,
-        EtiquetasAntachawy.CADENA,
-        EtiquetasAntachawy.TRUE,
-        EtiquetasAntachawy.FALSE
-    ],
-    "ExpresionCondicion": [
-        EtiquetasAntachawy.PAREN_IZQ,
-        EtiquetasAntachawy.ID,
-        EtiquetasAntachawy.NUMEROENTERO,
-        EtiquetasAntachawy.NUMEROFLOTANTE,
-        EtiquetasAntachawy.CARACTER,
-        EtiquetasAntachawy.CADENA,
-        EtiquetasAntachawy.TRUE,
-        EtiquetasAntachawy.FALSE
-    ],
-    "ExpresionCondicionPrime": [
-        EtiquetasAntachawy.Y,
-        EtiquetasAntachawy.O,
-    ],
-    "ExpresionOperadorRelacional": [
-        EtiquetasAntachawy.PAREN_IZQ,
-        EtiquetasAntachawy.ID,
-        EtiquetasAntachawy.NUMEROENTERO,
-        EtiquetasAntachawy.NUMEROFLOTANTE,
-        EtiquetasAntachawy.CARACTER,
-        EtiquetasAntachawy.CADENA,
-        EtiquetasAntachawy.TRUE,
-        EtiquetasAntachawy.FALSE
-    ],
-    "OperadorAditivo": [
-        EtiquetasAntachawy.MAS,
-        EtiquetasAntachawy.MENOS
-    ],
-    "OperadorMultiplicativo": [
-        EtiquetasAntachawy.MULTIPLICA,
-        EtiquetasAntachawy.DIVIDE
-    ],
-    "OperadorRelacional": [
-        EtiquetasAntachawy.MAYOR,
-        EtiquetasAntachawy.MENOR,
-        EtiquetasAntachawy.IGUAL,
-        EtiquetasAntachawy.DIFERENTE,
-        EtiquetasAntachawy.MAYOR_IGUAL,
-        EtiquetasAntachawy.MENOR_IGUAL
-    ],
-    "OperadorLogico": [
-        EtiquetasAntachawy.Y,
-        EtiquetasAntachawy.O
-    ],
-    "Termino": [
-        EtiquetasAntachawy.PAREN_IZQ,
-        EtiquetasAntachawy.ID,
-        EtiquetasAntachawy.NUMEROENTERO,
-        EtiquetasAntachawy.NUMEROFLOTANTE,
-        EtiquetasAntachawy.CARACTER,
-        EtiquetasAntachawy.CADENA,
-        EtiquetasAntachawy.TRUE,
-        EtiquetasAntachawy.FALSE
-    ],
-    "ExpresionImpresion": [
-        EtiquetasAntachawy.PAREN_IZQ,
-        EtiquetasAntachawy.ID,
-        EtiquetasAntachawy.NUMEROENTERO,
-        EtiquetasAntachawy.NUMEROFLOTANTE,
-        EtiquetasAntachawy.CARACTER,
-        EtiquetasAntachawy.CADENA,
-        EtiquetasAntachawy.TRUE,
-        EtiquetasAntachawy.FALSE
-    ],
-    "ExpresionImpresionPrime": [EtiquetasAntachawy.COMA, "$"]
-}
+# Etiqueta -> texto legible para los mensajes de error.
+etiqueta_a_lexema = {etiqueta: lexema
+                     for lexema, etiqueta in lexema_a_etiqueta.items()}
+etiqueta_a_lexema[E.SALTO_LINEA] = "salto de línea"
+etiqueta_a_lexema[E.FIN_ARCHIVO] = "final del archivo"

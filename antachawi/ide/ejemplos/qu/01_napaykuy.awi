@@ -1,0 +1,7 @@
+:: Ñawpaq programay: Tunki napaykun.
+:: rikuchiy pantallapi huk willakuyta rikuchin.
+qhapaq()
+{
+    rikuchiy("¡Napaykullayki! Ñuqaqa Tunki kani")
+    rikuchiy("Perú suyupi, phuyu sach'a-sach'akunapi tiyani")
+}

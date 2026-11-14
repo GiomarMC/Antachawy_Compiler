@@ -1,0 +1,7 @@
+:: ¡Kay programapi pantasqakuna kan! Tunki tarinaykipaq yanapasunki.
+qhapaq()
+{
+    yupay runtukuna = 3
+    rikuchiy(runtu, " runtukuna kapuwan")
+    runtukuna = runtukuna + "kimsa"
+}

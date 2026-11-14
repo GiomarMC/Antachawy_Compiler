@@ -1,8 +1,12 @@
 import argparse
-from antachawi.compiler import Compiler
+import json
+import sys
 from pathlib import Path
 
 from antachawi import __version__
+from antachawi.api import a_json, analizar_archivo
+from antachawi.compiler import Compiler
+from antachawi.mensajes import AMBOS, ES, QU
 
 
 def main():
@@ -48,6 +52,37 @@ def main():
             "— Pantay maskaq qillqakunata ruwachin")
         )
     parser.add_argument(
+        "-n",
+        "--no-optimizar",
+        "--mana-allinchaspa",
+        action="store_true",
+        help=(
+            "Genera el código sin la fase de optimización\n"
+            "— Mana allinchaspa kódigota ruwan")
+        )
+    parser.add_argument(
+        "-i",
+        "--idioma",
+        "--simi",
+        choices=[ES, QU, AMBOS],
+        default=AMBOS,
+        help="Idioma de los mensajes de error: es, qu o ambos"
+        )
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help=(
+            "Solo analiza el programa y muestra el resultado en JSON "
+            "(para editores e IDEs); no crea el ejecutable")
+        )
+    parser.add_argument(
+        "--traza",
+        action="store_true",
+        help=(
+            "Con --json, ejecuta el programa con el intérprete e incluye "
+            "la traza paso a paso")
+        )
+    parser.add_argument(
         "-v",
         "--version",
         "--wichay",
@@ -67,14 +102,23 @@ def main():
     if not file_path.exists():
         parser.error(f"El archivo {file_path} no existe")
 
-    compiler = Compiler(str(file_path), output_file, debug)
+    if args.json:
+        resultado = analizar_archivo(file_path,
+                                     optimizar_codigo=not args.no_optimizar)
+        print(json.dumps(a_json(resultado, con_traza=args.traza),
+                         ensure_ascii=False, indent=2))
+        return 0 if resultado.exito else 1
+
+    compiler = Compiler(str(file_path), output_file, debug,
+                        optimize=not args.no_optimizar, idioma=args.idioma)
     result = compiler.compile()
 
     if result:
         print("Successful compilation")
-    else:
-        print("Failed compilation")
+        return 0
+    print("Failed compilation")
+    return 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

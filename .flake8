@@ -1,0 +1,6 @@
+[flake8]
+# PEP 8: máximo 79 caracteres por línea.
+max-line-length = 79
+# Mismo límite de complejidad cognitiva que usa SonarQube (regla S3776).
+max-cognitive-complexity = 15
+exclude = .git,.venv,venv,__pycache__,build,dist,outputs

@@ -1,0 +1,7 @@
+:: ¡Este programa tiene errores! Tunki te ayudará a encontrarlos.
+qhapaq()
+{
+    yupay huevos = 3
+    rikuchiy("Tengo ", huevo, " huevos")
+    huevos = huevos + "uno"
+}
