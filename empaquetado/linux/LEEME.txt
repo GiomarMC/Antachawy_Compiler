@@ -1,0 +1,8 @@
+Antachawi Yachay — el lenguaje Antachawi y su entorno con Tunki
+
+Instalar:     ./instalar.sh        (solo tu usuario)
+              sudo ./instalar.sh   (todos los usuarios)
+Abrir:        menú de aplicaciones → "Antachawi Yachay", o en la terminal:
+              antachawi-ide [programa.awi]
+Compilador:   antachawi programa.awi   (para crear ejecutables necesita gcc)
+Desinstalar:  ./desinstalar.sh

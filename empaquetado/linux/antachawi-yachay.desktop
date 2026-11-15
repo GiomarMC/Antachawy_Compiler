@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Antachawi Yachay
+GenericName=Entorno para aprender a programar
+Comment=Programa en Antachawi con Tunki
+Exec="@PROGRAMA@/antachawi-yachay" %f
+Icon=antachawi-yachay
+Terminal=false
+Categories=Development;Education;IDE;
+MimeType=text/x-antachawi;
+StartupWMClass=antachawi-yachay
+Keywords=antachawi;quechua;programar;tunki;

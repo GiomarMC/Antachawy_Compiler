@@ -155,3 +155,37 @@ def icono(nombre: str) -> QIcon:
     pintor.end()
     resultado.addPixmap(apagado, QIcon.Mode.Disabled)
     return resultado
+
+
+TAMANOS_DEL_ICONO = (16, 24, 32, 48, 64, 128, 256, 512)
+
+
+def imagen_de_la_aplicacion(lado: int) -> QImage:
+    """Tunki feliz centrado en un cuadrado de lado x lado, pixelado (sin
+    suavizar). Es el ícono de la ventana y de los instaladores."""
+    from antachawi.ide import sprite
+
+    dibujo = sprite.imagen(sprite.FELIZ)
+    escala = max(1, lado // max(dibujo.width(), dibujo.height()))
+    dibujo = dibujo.scaled(
+        dibujo.width() * escala, dibujo.height() * escala,
+        Qt.AspectRatioMode.IgnoreAspectRatio,
+        Qt.TransformationMode.FastTransformation)
+    if dibujo.width() > lado or dibujo.height() > lado:
+        dibujo = dibujo.scaled(
+            lado, lado, Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation)
+    resultado = QImage(lado, lado, QImage.Format.Format_ARGB32)
+    resultado.fill(QColor(0, 0, 0, 0))
+    pintor = QPainter(resultado)
+    pintor.drawImage((lado - dibujo.width()) // 2,
+                     (lado - dibujo.height()) // 2, dibujo)
+    pintor.end()
+    return resultado
+
+
+def icono_de_la_aplicacion() -> QIcon:
+    resultado = QIcon()
+    for lado in TAMANOS_DEL_ICONO:
+        resultado.addPixmap(QPixmap.fromImage(imagen_de_la_aplicacion(lado)))
+    return resultado

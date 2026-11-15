@@ -2,6 +2,46 @@
 
 This project aims to develop a compiler for a new programming language called Antachawi, which uses Quechua as the basis for its syntax and terms. This effort seeks to reduce the digital divide currently present in Peru by promoting the use of accessible programming languages and technologies for Quechua-speaking communities. This language is based on Quechua Collao.
 
+## Installers (no Python or repository needed)
+
+The language and the graphical environment (Antachawi Yachay) come
+together in one installer. Download the one for your system from the
+[Releases](https://github.com/GiomarMC/Antachawy_Compiler/releases) page:
+
+| System | File | How to install |
+|---|---|---|
+| Windows | `AntachawiYachay-<version>-windows-x64.exe` | Run it. It adds Antachawi Yachay to the Start menu (and optionally to the desktop), opens `.awi` files and can add the `antachawi` command to the `PATH`. Administrator rights are not required. |
+| macOS (Apple Silicon) | `AntachawiYachay-<version>-macos-arm64.dmg` | Drag *Antachawi Yachay* to Applications. The app is not signed by Apple, so open it the first time with right click → Open. Optionally run `instalar-terminal.command` to get the `antachawi-ide` and `antachawi` commands. |
+| Linux (x86-64) | `AntachawiYachay-<version>-linux-x86_64.tar.gz` | Extract it and run `./instalar.sh` (only your user) or `sudo ./instalar.sh` (all users). It adds the app to the menu and installs the `antachawi-ide` and `antachawi` commands. To remove it, run `desinstalar.sh`. |
+
+After installing:
+
+```bash
+antachawi-ide [program.awi]    # opens Antachawi Yachay
+antachawi program.awi          # compiles to an executable (needs gcc / Xcode tools)
+```
+
+The environment uses the interpreter, so it does **not** need gcc.
+
+### Building the installers
+
+GitHub Actions (`.github/workflows/instaladores.yml`) builds the three
+installers. Pushing a version tag publishes them as a release:
+
+```bash
+git tag v0.0.1
+git push origin v0.0.1
+```
+
+To build the installer for your current system by hand (each system can
+only build its own; on Windows you also need
+[Inno Setup 6](https://jrsoftware.org/isdl.php)):
+
+```bash
+pip install . PySide6-Essentials pyinstaller pillow
+python empaquetado/construir.py      # result in dist/instaladores/
+```
+
 ## Prerequisites
 
 - Python 3.8 or higher
