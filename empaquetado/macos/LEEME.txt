@@ -1,0 +1,10 @@
+Antachawi Yachay — el lenguaje Antachawi y su entorno con Tunki
+
+1. Arrastra "Antachawi Yachay" a la carpeta Aplicaciones.
+2. La primera vez, haz clic derecho sobre la aplicación → Abrir → Abrir
+   (macOS lo pide porque la aplicación no está firmada por Apple).
+   Si dice que "está dañada", ejecuta en la Terminal:
+       xattr -dr com.apple.quarantine "/Applications/Antachawi Yachay.app"
+3. Opcional: doble clic en "instalar-terminal.command" para usar
+   "antachawi-ide" y "antachawi programa.awi" en la Terminal.
+   (Para compilar a ejecutable: xcode-select --install)

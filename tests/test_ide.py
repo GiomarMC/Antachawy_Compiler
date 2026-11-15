@@ -293,3 +293,12 @@ def test_en_quechua_cambian_botones_ejemplos_y_plantilla(ventana):
     assert all("qu" == r.parent.name for r in ejemplos_en(QU))
     ventana.nuevo()
     assert "Napaykullayki" in ventana.editor.toPlainText()
+
+
+def test_icono_de_la_aplicacion_es_cuadrado_y_tiene_a_tunki(aplicacion):
+    for lado in iconos.TAMANOS_DEL_ICONO:
+        imagen = iconos.imagen_de_la_aplicacion(lado)
+        assert imagen.width() == imagen.height() == lado
+        centro = imagen.pixelColor(lado // 2, lado // 2)
+        assert centro.alpha() > 0
+    assert not iconos.icono_de_la_aplicacion().isNull()
